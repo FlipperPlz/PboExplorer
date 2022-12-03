@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PboExplorer.Windows"
         mc:Ignorable="d"
         Title="PboExplorerWindow" Height="450" Width="800">
 
@@ -43,7 +42,28 @@
                     Name="AddEntry"/>
             </MenuItem>
             <MenuItem Header="_Options">
+                
             </MenuItem>
+            
+            <Separator></Separator>
+            
+            <TextBox
+                Name="SearchBox"
+                Tag="Search"
+                VerticalAlignment="Center"
+                MinWidth="115"
+                Width="200*"
+                />
+            <Button
+                VerticalAlignment="Stretch"
+                Margin="3"
+                MaxHeight="25"
+                MinWidth="50"
+                Name="SearchButton"
+                Content="Search"
+                VerticalContentAlignment="Center"
+                Click="SubmitSearch"
+                />
         </Menu>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -79,11 +99,6 @@
             </TabItem>
         </TabControl>
 
-        <GridSplitter
-            Grid.Column="1"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Stretch"
-            Width="5" DragDelta="GridSplitter_DragDelta"/>
 
         <Grid Grid.Column="2" Margin="5 0 0 0">
             <Grid.RowDefinitions>
@@ -190,10 +205,4 @@
             </Grid>
         </Grid>
     </DockPanel>
-    
-
-   
-
-    
-
 </Window>
