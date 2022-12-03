@@ -24,24 +24,27 @@ namespace PboExplorer.Windows
 
         private TreeDataEntry? SelectedEntry { get; set; }
         
+        
+        
         public PboExplorerWindow(PboFile pboFile) {
-            _pboFile = pboFile;
             InitializeComponent();
+
+            _pboFile = pboFile;
             PboView.ItemsSource = EntryList;
 
-            TreeDirectoryEntry GetOrCreateDirectory(string childName) {
-                var found = EntryList.Where(e => e is TreeDirectoryEntry).Cast<TreeDirectoryEntry>().FirstOrDefault(d => string.Equals(d.DirectoryName, childName));
-                if (found != null) return found;
-                found = new TreeDirectoryEntry(childName);
-                EntryList.Add(found);
-                return found;
-            }
-            
             foreach (var entry in pboFile.GetPboEntries().Where(e => e is PboDataEntry)) {
                 var parent = Path.GetDirectoryName(entry.EntryName)!.Trim('/','\\');
                 if (string.IsNullOrEmpty(parent)) EntryList.Add(new TreeDataEntry((PboDataEntry) entry));
                 else GetOrCreateDirectory(parent).AddEntry(new TreeDataEntry((PboDataEntry) entry));
             }
+        }
+
+        public TreeDirectoryEntry GetOrCreateDirectory(string directoryName) {
+            var found = EntryList.Where(e => e is TreeDirectoryEntry).Cast<TreeDirectoryEntry>().FirstOrDefault(d => string.Equals(d.DirectoryName, directoryName));
+            if (found != null) return found;
+            found = new TreeDirectoryEntry(directoryName);
+            EntryList.Add(found);
+            return found;
         }
         
         private void ResetView() {
@@ -96,7 +99,6 @@ namespace PboExplorer.Windows
         private void ShowPboEntry(object sender, RoutedPropertyChangedEventArgs<object> e) {
             TextPreview.Text = string.Empty;
             SelectedEntry = null;
-            Cursor = Cursors.Wait;
 
             switch (e.NewValue) {
                 case TreeDataEntry dataEntry: {

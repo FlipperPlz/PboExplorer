@@ -8,29 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="obj\Debug\net6.0-windows\PboExplorer.AssemblyInfoInputs.cache" />
-    <Content Include="obj\Debug\net6.0-windows\PboExplorer.assets.cache" />
-    <Content Include="obj\Debug\net6.0-windows\PboExplorer.csproj.AssemblyReference.cache" />
-    <Content Include="obj\Debug\net6.0-windows\PboExplorer.designer.deps.json" />
-    <Content Include="obj\Debug\net6.0-windows\PboExplorer.designer.runtimeconfig.json" />
-    <Content Include="obj\Debug\net6.0-windows\PboExplorer_MarkupCompile.cache" />
-    <Content Include="obj\Debug\net6.0-windows\PboExplorer_MarkupCompile.lref" />
-    <Content Include="obj\PboExplorer.csproj.nuget.dgspec.json" />
-    <Content Include="obj\project.assets.json" />
-    <Content Include="obj\project.nuget.cache" />
-    <Content Include="obj\project.packagespec.json" />
-    <Content Include="obj\rider.project.restore.info" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="obj\Debug\net6.0-windows\.NETCoreApp,Version=v6.0.AssemblyAttributes.cs" />
-    <Compile Include="obj\Debug\net6.0-windows\App.g.i.cs" />
-    <Compile Include="obj\Debug\net6.0-windows\MainWindow.g.i.cs" />
-    <Compile Include="obj\Debug\net6.0-windows\Windows\PboExplorerWindow.g.i.cs" />
-    <Compile Include="obj\Debug\net6.0-windows\Windows\SplashWindow.g.i.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="BisUtils.Core" Version="1.0.31" />
     <PackageReference Include="BisUtils.PBO" Version="1.0.11" />
   </ItemGroup>

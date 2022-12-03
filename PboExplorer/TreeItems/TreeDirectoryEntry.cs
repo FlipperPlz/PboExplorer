@@ -13,6 +13,10 @@ public class TreeDirectoryEntry : ITreeItem {
     
     public TreeDirectoryEntry(string name) => DirectoryName = name;
 
+    public ICollection<ITreeItem>? Children => GetChildren();
+    public string Name => DirectoryName;
+    
+    
     public string GetTreeName() => DirectoryName;
     
     public void AddEntry(TreeDataEntry entry) {

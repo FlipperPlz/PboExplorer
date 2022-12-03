@@ -52,7 +52,7 @@
                 Tag="Search"
                 VerticalAlignment="Center"
                 MinWidth="115"
-                Width="200*"
+                Width="150"
                 />
             <Button
                 VerticalAlignment="Stretch"
@@ -106,9 +106,14 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
 
-            <DataGrid Name="DataPreview" IsReadOnly="True" AutoGenerateColumns="False" Grid.Row="0">
-                
-            </DataGrid>
+            <TextBox Name="TextPreview"
+                     TextWrapping="Wrap"
+                     AcceptsReturn="True"
+                     VerticalScrollBarVisibility="Visible"
+                     FontFamily="Consolas"
+                     IsReadOnly="True" 
+                     IsReadOnlyCaretVisible="True"
+            />
 
             
 
@@ -196,8 +201,6 @@
                             SOFTWARE.
                                 </TextBlock>
                             </ScrollViewer>
-                            <TextBox Name="TextPreview" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Visibility="Hidden" FontFamily="Consolas" IsReadOnly="True" IsReadOnlyCaretVisible="True" />
-                           
                         </Grid>
                     </TabItem>
                 </TabControl>
