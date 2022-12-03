@@ -1,0 +1,199 @@
+﻿<Window x:Class="PboExplorer.Windows.PboExplorerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PboExplorer.Windows"
+        mc:Ignorable="d"
+        Title="PboExplorerWindow" Height="450" Width="800">
+
+    <Window.Resources>
+        <HierarchicalDataTemplate x:Key="TreeTemplate" ItemsSource="{Binding Children}">
+            <TextBlock Text="{Binding Name}" />
+        </HierarchicalDataTemplate>
+    </Window.Resources>
+
+    <DockPanel>
+
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem 
+                    Header="_Save..."
+                    Command="Save"/>
+                <MenuItem 
+                    Header="_Save _as..."
+                    Click="SaveAs"/>
+                <MenuItem
+                    Header="Close"
+                    Click="Close"/>
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem 
+                    Header="Copy Selected Entry Name"
+                    Click="CopySelectedEntryName"/>
+                <MenuItem 
+                    Header="Copy Selected Entry Name"
+                    Click="CopySelectedEntryData"/>
+                <MenuItem 
+                    Header="Delete Selected Entry"
+                    Click="DeleteSelectedEntry"/>
+                <MenuItem 
+                    Header="Add Entry"
+                    Click="AddEntryWizard"
+                    Name="AddEntry"/>
+            </MenuItem>
+            <MenuItem Header="_Options">
+            </MenuItem>
+        </Menu>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1"/>
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+        </Grid>
+
+        <TabControl Grid.Column="0">
+            <TabItem
+                Header="PBO Entries"
+                AllowDrop="True"
+                Drop="PboEntry_Drop">
+                <TreeView
+                    Name="PboView"
+                    ItemTemplate="{StaticResource TreeTemplate}"
+                    SelectedItemChanged="ShowPboEntry"
+                    VirtualizingStackPanel.IsVirtualizing="True">
+
+                </TreeView>
+            </TabItem>
+            <TabItem
+                Header="Config Files"
+                AllowDrop="True"
+                Drop="ConfigEntry_Drop">
+                <TreeView
+                    Name="ConfigView"
+                    ItemTemplate="{StaticResource TreeTemplate}"
+                    SelectedItemChanged="ShowConfigEntry"
+                    VirtualizingStackPanel.IsVirtualizing="True">
+
+                </TreeView>
+            </TabItem>
+        </TabControl>
+
+        <GridSplitter
+            Grid.Column="1"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Stretch"
+            Width="5" DragDelta="GridSplitter_DragDelta"/>
+
+        <Grid Grid.Column="2" Margin="5 0 0 0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="300" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <DataGrid Name="DataPreview" IsReadOnly="True" AutoGenerateColumns="False" Grid.Row="0">
+                
+            </DataGrid>
+
+            
+
+            <GridSplitter Grid.Row="1" 
+                      HorizontalAlignment="Stretch" 
+                      VerticalAlignment="Top"
+                      ResizeDirection="Rows"
+                      Height="5"/>
+
+            
+            <Grid Background="LightGray" Grid.Row="1" Margin="0 5 0 0">
+                <TabControl Grid.Column="1" Grid.Row="1">
+                    <TabItem
+                        Header="Search Results">
+                        <ListView
+                            Name="SearchResultsView"
+                            SelectionChanged="ShowSearchResult" 
+                            VirtualizingStackPanel.IsVirtualizing="True">
+                        </ListView>
+                    </TabItem>
+                    <TabItem
+                        Header="PBO Metadata">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="200" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <DataGrid Name="PropertiesGrid" IsReadOnly="True" AutoGenerateColumns="False" Grid.Row="0">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn 
+                                        Header="Property" 
+                                        Binding="{Binding Name}" 
+                                        Width="1*">
+                                       
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn 
+                                        Header="Value" 
+                                        Binding="{Binding Value}" 
+                                        Width="3*">
+                                        
+                                    </DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </TabItem>
+                    <TabItem
+                        Header="About Program">
+                        <Grid Background="LightGray" Grid.Row="1" Margin="0 5 0 0">
+                            <ScrollViewer Name="AboutBox" Margin="10">
+                                <TextBlock>
+                            <Bold>
+                            Remarks: If your are not the author of the files, you have to ensure that files<LineBreak /> 
+                            licence allows you to manipulate them (extract, re-use or edit them). If your<LineBreak /> 
+                            are not sure about this, you must get approval from the author of the files.</Bold><LineBreak />
+                            <LineBreak />
+                            PBO Explorer version 0.0.0<LineBreak />
+                            <Hyperlink NavigateUri="https://github.com/FlipperPlz/PboExplorer" RequestNavigate="Hyperlink_RequestNavigate">https://github.com/jetelain/PboExplorer</Hyperlink>
+                            <LineBreak />
+                            <LineBreak />
+                            Copyright (c) 2021-2022 FlipperPlz<LineBreak />
+                            Powered By BisUtils
+                            <LineBreak />
+                            <LineBreak />
+                            GPL License<LineBreak />
+                            <LineBreak />
+                            Copyright (c) 2022 FlipperPlz - Rewrite<LineBreak />
+                            Copyright (c) 2021-2022 Julien Etelain (aka GrueArbre) <LineBreak />
+                            <LineBreak />
+                            Permission is hereby granted, free of charge, to any person obtaining a copy<LineBreak />
+                            of this software and associated documentation files (the "Software"), to deal<LineBreak />
+                            in the Software without restriction, including without limitation the rights<LineBreak />
+                            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell<LineBreak />
+                            copies of the Software, and to permit persons to whom the Software is<LineBreak />
+                            furnished to do so, subject to the following conditions:<LineBreak />
+                            <LineBreak />
+                            The above copyright notice and this permission notice shall be included in all<LineBreak />
+                            copies or substantial portions of the Software.<LineBreak />
+                            <LineBreak />
+                            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR<LineBreak />
+                            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,<LineBreak />
+                            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE<LineBreak />
+                            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER<LineBreak />
+                            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,<LineBreak />
+                            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE<LineBreak />
+                            SOFTWARE.
+                                </TextBlock>
+                            </ScrollViewer>
+                            <TextBox Name="TextPreview" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Visibility="Hidden" FontFamily="Consolas" IsReadOnly="True" IsReadOnlyCaretVisible="True" />
+                           
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+
+            </Grid>
+        </Grid>
+    </DockPanel>
+    
+
+   
+
+    
+
+</Window>
