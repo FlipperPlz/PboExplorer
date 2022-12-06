@@ -7,8 +7,8 @@
         Title="PboExplorerWindow" Height="450" Width="800">
 
     <Window.Resources>
-        <HierarchicalDataTemplate x:Key="TreeTemplate" ItemsSource="{Binding Children}">
-            <TextBlock Text="{Binding Name}" />
+        <HierarchicalDataTemplate x:Key="TreeTemplate" ItemsSource="{Binding TreeChildren}">
+            <TextBlock Text="{Binding TreeTitle}" />
         </HierarchicalDataTemplate>
     </Window.Resources>
 

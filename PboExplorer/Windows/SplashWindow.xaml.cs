@@ -35,9 +35,8 @@ namespace PboExplorer.Windows
             dlg.DefaultExt = ".pbo";
             dlg.Filter = "PBO File|*.pbo|Preview BI Files|*.paa;*.rvmat;*.bin;*.pac;*.p3d;*.wrp;*.sqm";
             if (dlg.ShowDialog() == true) {
-                var explorerWindow =
-                    new PboExplorerWindow(new PboFile(File.Open(dlg.FileName, FileMode.Open, FileAccess.ReadWrite)));
-                explorerWindow.Show();
+                new PboExplorerWindow(new PboFile(File.Open(dlg.FileName, FileMode.Open, FileAccess.ReadWrite))).Show();
+                Close();
             }
             
         }

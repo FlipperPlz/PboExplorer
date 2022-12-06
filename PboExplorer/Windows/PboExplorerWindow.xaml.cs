@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -23,9 +24,7 @@ namespace PboExplorer.Windows
         private readonly ObservableCollection<ITreeItem> EntryList = new();
 
         private TreeDataEntry? SelectedEntry { get; set; }
-        
-        
-        
+
         public PboExplorerWindow(PboFile pboFile) {
             InitializeComponent();
 
@@ -33,18 +32,28 @@ namespace PboExplorer.Windows
             PboView.ItemsSource = EntryList;
 
             foreach (var entry in pboFile.GetPboEntries().Where(e => e is PboDataEntry)) {
-                var parent = Path.GetDirectoryName(entry.EntryName)!.Trim('/','\\');
+                var parent = (Path.GetDirectoryName(entry.EntryName) ?? string.Empty).Trim('/','\\');
                 if (string.IsNullOrEmpty(parent)) EntryList.Add(new TreeDataEntry((PboDataEntry) entry));
-                else GetOrCreateDirectory(parent).AddEntry(new TreeDataEntry((PboDataEntry) entry));
+                else {
+                    var entryDirectory =  GetOrCreateDirectory(parent);
+                    entryDirectory.AddEntry(new TreeDataEntry((PboDataEntry) entry, entryDirectory));
+                }
             }
         }
 
         public TreeDirectoryEntry GetOrCreateDirectory(string directoryName) {
-            var found = EntryList.Where(e => e is TreeDirectoryEntry).Cast<TreeDirectoryEntry>().FirstOrDefault(d => string.Equals(d.DirectoryName, directoryName));
-            if (found != null) return found;
-            found = new TreeDirectoryEntry(directoryName);
+            var folders = directoryName.Split(Path.DirectorySeparatorChar);
+            var found =
+                EntryList.Where(e => e is TreeDirectoryEntry).Cast<TreeDirectoryEntry>()
+                    .FirstOrDefault(d => string.Equals(d.TreeTitle, folders.First()));
+            if (found is not null) return found.GetOrCreateDirectory(string.Join(Path.DirectorySeparatorChar, folders.Skip(1)));;
+            found = new TreeDirectoryEntry(folders.First());
             EntryList.Add(found);
-            return found;
+            
+            
+            var nextPaths = folders.Skip(1).ToList();
+        
+            return nextPaths.Count != 0 ? found.GetOrCreateDirectory(string.Join(Path.DirectorySeparatorChar, nextPaths)) : found;
         }
         
         private void ResetView() {
@@ -81,7 +90,7 @@ namespace PboExplorer.Windows
 
         private void CopySelectedEntryData(object sender, RoutedEventArgs e) {
             if(SelectedEntry is null) return;
-            Clipboard.SetText(Encoding.UTF8.GetString(SelectedEntry.GetDataStream().ToArray()));
+            Clipboard.SetText(Encoding.UTF8.GetString(SelectedEntry.GetEntryData.ToArray()));
         }
 
         private void DeleteSelectedEntry(object sender, RoutedEventArgs e) {
@@ -103,7 +112,7 @@ namespace PboExplorer.Windows
             switch (e.NewValue) {
                 case TreeDataEntry dataEntry: {
                     SelectedEntry = dataEntry;
-                    TextPreview.Text = Encoding.UTF8.GetString(SelectedEntry.GetDataStream().ToArray());
+                    TextPreview.Text = Encoding.UTF8.GetString(SelectedEntry.GetEntryData);
                     break;
                 }
                 default: return;

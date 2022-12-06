@@ -1,16 +1,50 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Windows.Shapes;
+using System.Text;
 using BisUtils.PBO;
 using BisUtils.PBO.Entries;
 using PboExplorer.Utils;
-using Path = System.IO.Path;
 
 namespace PboExplorer.TreeItems; 
 
 public class TreeDataEntry : ITreeItem {
     private readonly PboDataEntry _pboDataEntry;
-    private readonly IPboFile _parentPbo;
+    private IPboFile _parentPbo => _pboDataEntry.EntryParent;
+    public ITreeItem? TreeParent { get; set; }
+    public string TreeTitle {
+        get => Name;
+        set {
+            var place = TreePath.LastIndexOf(Name, StringComparison.Ordinal);
+            _parentPbo.RenameEntry(_pboDataEntry, TreePath.Remove(place, Name.Length).Insert(place, value));
+        }
+    }
+
+    public string TreePath {
+        get {
+            var pathBuilder = new StringBuilder();
+            if (TreeParent is not null) pathBuilder.Append(TreeParent.TreePath).Append(Path.DirectorySeparatorChar);
+            pathBuilder.Append(TreeTitle);
+            
+            return pathBuilder.ToString();
+        }
+        set => _parentPbo.RenameEntry(_pboDataEntry, value, false);
+    }
+
+    public ICollection<ITreeItem>? TreeChildren {
+        get => null;
+        set => throw new NotSupportedException();
+    }
+
+    public TreeDataEntry(PboDataEntry dataEntry, ITreeItem? parent = null) {
+        _pboDataEntry = dataEntry;
+        TreeParent = parent;
+    }
+
+    public void DeleteEntry() {
+        if (TreeParent is not null) TreeParent.TreeChildren!.Remove(this);
+        _parentPbo.DeleteEntry(_pboDataEntry, false);
+    }
     
     public string FullPath => _pboDataEntry.EntryName;
     public string Name => Path.GetFileName(_pboDataEntry.EntryName);
@@ -18,19 +52,5 @@ public class TreeDataEntry : ITreeItem {
     public ulong PackedSize => _pboDataEntry.PackedSize;
     public ulong OriginalSize => _pboDataEntry.OriginalSize;
     public ulong Timestamp => _pboDataEntry.TimeStamp;
-
-    public TreeDataEntry(PboDataEntry pboDataEntry) {
-        _pboDataEntry = pboDataEntry;
-        _parentPbo = pboDataEntry.EntryParent;
-    }
-
-    public void DeleteEntry() {
-        _pboDataEntry.EntryParent.DeleteEntry(_pboDataEntry, false);
-    }
-
-    public string GetTreeName() => Name;
-
-    public MemoryStream GetDataStream() => new(_pboDataEntry.EntryData);
-    
-    public ICollection<ITreeItem>? GetChildren() => null;
+    public byte[] GetEntryData => _pboDataEntry.EntryData;
 }
