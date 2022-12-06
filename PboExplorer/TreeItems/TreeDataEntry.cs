@@ -9,14 +9,14 @@ using PboExplorer.Utils;
 namespace PboExplorer.TreeItems; 
 
 public class TreeDataEntry : ITreeItem {
-    private readonly PboDataEntry _pboDataEntry;
-    private IPboFile _parentPbo => _pboDataEntry.EntryParent;
+    public readonly PboDataEntry PboDataEntry;
+    private IPboFile _parentPbo => PboDataEntry.EntryParent;
     public ITreeItem? TreeParent { get; set; }
     public string TreeTitle {
         get => Name;
         set {
             var place = TreePath.LastIndexOf(Name, StringComparison.Ordinal);
-            _parentPbo.RenameEntry(_pboDataEntry, TreePath.Remove(place, Name.Length).Insert(place, value));
+            _parentPbo.RenameEntry(PboDataEntry, TreePath.Remove(place, Name.Length).Insert(place, value));
         }
     }
 
@@ -28,7 +28,7 @@ public class TreeDataEntry : ITreeItem {
             
             return pathBuilder.ToString();
         }
-        set => _parentPbo.RenameEntry(_pboDataEntry, value, false);
+        set => _parentPbo.RenameEntry(PboDataEntry, value, false);
     }
 
     public ICollection<ITreeItem>? TreeChildren {
@@ -37,20 +37,20 @@ public class TreeDataEntry : ITreeItem {
     }
 
     public TreeDataEntry(PboDataEntry dataEntry, ITreeItem? parent = null) {
-        _pboDataEntry = dataEntry;
+        PboDataEntry = dataEntry;
         TreeParent = parent;
     }
 
     public void DeleteEntry() {
         if (TreeParent is not null) TreeParent.TreeChildren!.Remove(this);
-        _parentPbo.DeleteEntry(_pboDataEntry, false);
+        _parentPbo.DeleteEntry(PboDataEntry, false);
     }
     
-    public string FullPath => _pboDataEntry.EntryName;
-    public string Name => Path.GetFileName(_pboDataEntry.EntryName);
+    public string FullPath => PboDataEntry.EntryName;
+    public string Name => Path.GetFileName(PboDataEntry.EntryName);
     public string Extension => Path.GetExtension(Name);
-    public ulong PackedSize => _pboDataEntry.PackedSize;
-    public ulong OriginalSize => _pboDataEntry.OriginalSize;
-    public ulong Timestamp => _pboDataEntry.TimeStamp;
-    public byte[] GetEntryData => _pboDataEntry.EntryData;
+    public ulong PackedSize => PboDataEntry.PackedSize;
+    public ulong OriginalSize => PboDataEntry.OriginalSize;
+    public ulong Timestamp => PboDataEntry.TimeStamp;
+    public byte[] GetEntryData => PboDataEntry.EntryData;
 }

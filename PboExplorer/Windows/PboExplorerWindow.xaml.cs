@@ -16,13 +16,21 @@ using Path = System.IO.Path;
 
 namespace PboExplorer.Windows
 {
+
+    internal struct EntryInformation {
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
     /// <summary>
     /// Interaction logic for PboExplorerWindow.xaml
     /// </summary>
     public partial class PboExplorerWindow : Window {
         private readonly PboFile _pboFile;
         private readonly ObservableCollection<ITreeItem> EntryList = new();
+        
+        private readonly ObservableCollection<EntryInformation> SelectedEntryInfo = new();
 
+        private TreeDirectoryEntry? SelectedDirectory { get; set; }
         private TreeDataEntry? SelectedEntry { get; set; }
 
         public PboExplorerWindow(PboFile pboFile) {
@@ -42,7 +50,7 @@ namespace PboExplorer.Windows
         }
 
         public TreeDirectoryEntry GetOrCreateDirectory(string directoryName) {
-            var folders = directoryName.Split(Path.DirectorySeparatorChar);
+            var folders = directoryName.Split(Path.DirectorySeparatorChar).Where(s => !string.IsNullOrEmpty(s));
             var found =
                 EntryList.Where(e => e is TreeDirectoryEntry).Cast<TreeDirectoryEntry>()
                     .FirstOrDefault(d => string.Equals(d.TreeTitle, folders.First()));
@@ -59,8 +67,14 @@ namespace PboExplorer.Windows
         private void ResetView() {
             SearchBox.Clear();
             SelectedEntry = null;
+            SelectedDirectory = null;
             TextPreview.Text = string.Empty;
             SearchResultsView.ItemsSource = null;
+            EntryInformationGrid.ItemsSource = null;
+            TreeViewCtxDelete.Visibility = Visibility.Hidden;
+            TreeViewCtxCopyData.Visibility = Visibility.Hidden;
+            TreeViewCtxCopyName.Visibility = Visibility.Hidden;
+            SelectedEntryInfo.Clear();
         }
         
         private void SaveAs(object sender, RoutedEventArgs e) {
@@ -108,11 +122,37 @@ namespace PboExplorer.Windows
         private void ShowPboEntry(object sender, RoutedPropertyChangedEventArgs<object> e) {
             TextPreview.Text = string.Empty;
             SelectedEntry = null;
+            SelectedDirectory = null;
+            TreeViewCtxDelete.Visibility = Visibility.Hidden;
+            TreeViewCtxCopyData.Visibility = Visibility.Hidden;
+            TreeViewCtxCopyName.Visibility = Visibility.Hidden;
+            SelectedEntryInfo.Clear();
+            EntryInformationGrid.ItemsSource = SelectedEntryInfo;
+
 
             switch (e.NewValue) {
                 case TreeDataEntry dataEntry: {
                     SelectedEntry = dataEntry;
                     TextPreview.Text = Encoding.UTF8.GetString(SelectedEntry.GetEntryData);
+                    TreeViewCtxDelete.Visibility = Visibility.Visible;
+                    TreeViewCtxCopyData.Visibility = Visibility.Visible;
+                    TreeViewCtxCopyName.Visibility = Visibility.Visible;
+                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Entry Name", Value = SelectedEntry.Name });
+                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Full Path", Value = SelectedEntry.FullPath });
+                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Tree Path", Value = SelectedEntry.TreePath });
+                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Entry Size", Value = SelectedEntry.OriginalSize.ToString() });
+                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Stored Size", Value = SelectedEntry.PackedSize.ToString() });
+                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Time Stamp", Value = SelectedEntry.Timestamp.ToString() });
+                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Written Offset", Value = string.Empty });
+                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Calculated Offset", Value = (_pboFile.DataBlockStartOffset + SelectedEntry.PboDataEntry.EntryDataStartOffset).ToString() });
+
+                    break;
+                }
+                case TreeDirectoryEntry directoryEntry: {
+                    SelectedDirectory = directoryEntry;
+                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Directory Name", Value = SelectedDirectory.TreeTitle });
+                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Tree Path", Value = SelectedDirectory.TreePath });
+
                     break;
                 }
                 default: return;

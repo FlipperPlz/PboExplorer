@@ -49,7 +49,8 @@ public class TreeDirectoryEntry : ITreeItem {
     
     public TreeDirectoryEntry GetOrCreateDirectory(string childName) {
         TreeChildren ??= new List<ITreeItem>();
-        var folders = childName.Split(Path.DirectorySeparatorChar);
+        if (childName == string.Empty) return this;
+        var folders = childName.Split(Path.DirectorySeparatorChar).Where(s => !string.IsNullOrEmpty(s));
         
         var found = ChildDirectories.FirstOrDefault(d => string.Equals(d._directoryName, folders.First()));
         if (found != null) return found.GetOrCreateDirectory(string.Join(Path.DirectorySeparatorChar, folders.Skip(1)));
