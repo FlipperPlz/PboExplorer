@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace PboExplorer.Windows
     /// </summary>
     public partial class PboExplorerWindow : Window {
         private readonly PboFile _pboFile;
-        private readonly ObservableCollection<ITreeItem> EntryList = new();
+        private readonly EntryTreeRoot EntryRoot = new();
         
         private readonly ObservableCollection<EntryInformation> SelectedEntryInfo = new();
 
@@ -37,46 +38,13 @@ namespace PboExplorer.Windows
             InitializeComponent();
 
             _pboFile = pboFile;
-            PboView.ItemsSource = EntryList;
+            PboView.ItemsSource = EntryRoot.TreeChildren;
 
             foreach (var entry in pboFile.GetPboEntries().Where(e => e is PboDataEntry)) {
-                var parent = (Path.GetDirectoryName(entry.EntryName) ?? string.Empty).Trim('/','\\');
-                if (string.IsNullOrEmpty(parent)) EntryList.Add(new TreeDataEntry((PboDataEntry) entry));
-                else {
-                    var entryDirectory =  GetOrCreateDirectory(parent);
-                    entryDirectory.AddEntry(new TreeDataEntry((PboDataEntry) entry, entryDirectory));
-                }
+                EntryRoot.GetOrCreateChild<TreeDataEntry>(entry.EntryName).PboDataEntry = (PboDataEntry) entry;
             }
         }
 
-        public TreeDirectoryEntry GetOrCreateDirectory(string directoryName) {
-            var folders = directoryName.Split(Path.DirectorySeparatorChar).Where(s => !string.IsNullOrEmpty(s));
-            var found =
-                EntryList.Where(e => e is TreeDirectoryEntry).Cast<TreeDirectoryEntry>()
-                    .FirstOrDefault(d => string.Equals(d.TreeTitle, folders.First()));
-            if (found is not null) return found.GetOrCreateDirectory(string.Join(Path.DirectorySeparatorChar, folders.Skip(1)));;
-            found = new TreeDirectoryEntry(folders.First());
-            EntryList.Add(found);
-            
-            
-            var nextPaths = folders.Skip(1).ToList();
-        
-            return nextPaths.Count != 0 ? found.GetOrCreateDirectory(string.Join(Path.DirectorySeparatorChar, nextPaths)) : found;
-        }
-        
-        private void ResetView() {
-            SearchBox.Clear();
-            SelectedEntry = null;
-            SelectedDirectory = null;
-            TextPreview.Text = string.Empty;
-            SearchResultsView.ItemsSource = null;
-            EntryInformationGrid.ItemsSource = null;
-            TreeViewCtxDelete.Visibility = Visibility.Hidden;
-            TreeViewCtxCopyData.Visibility = Visibility.Hidden;
-            TreeViewCtxCopyName.Visibility = Visibility.Hidden;
-            SelectedEntryInfo.Clear();
-        }
-        
         private void SaveAs(object sender, RoutedEventArgs e) {
             var dialog = new SaveFileDialog() {
                 Title = "Save PBO File",
@@ -108,7 +76,7 @@ namespace PboExplorer.Windows
         }
 
         private void DeleteSelectedEntry(object sender, RoutedEventArgs e) {
-            SelectedEntry?.DeleteEntry();
+            
         }
 
         private void AddEntryWizard(object sender, RoutedEventArgs e) {
@@ -139,7 +107,7 @@ namespace PboExplorer.Windows
                     TreeViewCtxCopyName.Visibility = Visibility.Visible;
                     SelectedEntryInfo.Add(new EntryInformation() { Key = "Entry Name", Value = SelectedEntry.Name });
                     SelectedEntryInfo.Add(new EntryInformation() { Key = "Full Path", Value = SelectedEntry.FullPath });
-                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Tree Path", Value = SelectedEntry.TreePath });
+                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Tree Path", Value = SelectedEntry.Description });
                     SelectedEntryInfo.Add(new EntryInformation() { Key = "Entry Size", Value = SelectedEntry.OriginalSize.ToString() });
                     SelectedEntryInfo.Add(new EntryInformation() { Key = "Stored Size", Value = SelectedEntry.PackedSize.ToString() });
                     SelectedEntryInfo.Add(new EntryInformation() { Key = "Time Stamp", Value = SelectedEntry.Timestamp.ToString() });
@@ -150,8 +118,8 @@ namespace PboExplorer.Windows
                 }
                 case TreeDirectoryEntry directoryEntry: {
                     SelectedDirectory = directoryEntry;
-                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Directory Name", Value = SelectedDirectory.TreeTitle });
-                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Tree Path", Value = SelectedDirectory.TreePath });
+                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Directory Name", Value = SelectedDirectory.Title });
+                    SelectedEntryInfo.Add(new EntryInformation() { Key = "Tree Path", Value = SelectedDirectory.Description });
 
                     break;
                 }

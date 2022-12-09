@@ -3,17 +3,21 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:treeItems="clr-namespace:PboExplorer.TreeItems"
+        xmlns:utils="clr-namespace:PboExplorer.Utils"
         mc:Ignorable="d"
         Title="PboExplorerWindow" Height="450" Width="800">
 
     <Window.Resources>
-        <HierarchicalDataTemplate x:Key="TreeTemplate" ItemsSource="{Binding TreeChildren}">
-            <TextBlock Text="{Binding TreeTitle}" />
+        <HierarchicalDataTemplate x:Key="EntryTreeTemplate"
+            DataType="{x:Type utils:ITreeEnumerableItem}"
+            ItemsSource="{Binding TreeChildren}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding Title}" ToolTip="{Binding Description}"/>
+            </StackPanel>
         </HierarchicalDataTemplate>
     </Window.Resources>
-
     <DockPanel>
-
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
                 <MenuItem 
@@ -79,7 +83,7 @@
                 Drop="PboEntry_Drop">
                 <TreeView
                     Name="PboView"
-                    ItemTemplate="{StaticResource TreeTemplate}"
+                    ItemTemplate="{StaticResource EntryTreeTemplate}"
                     SelectedItemChanged="ShowPboEntry"
                     VirtualizingStackPanel.IsVirtualizing="True">
                     <TreeView.ContextMenu>
@@ -114,7 +118,6 @@
                 Drop="ConfigEntry_Drop">
                 <TreeView
                     Name="ConfigView"
-                    ItemTemplate="{StaticResource TreeTemplate}"
                     SelectedItemChanged="ShowConfigEntry"
                     VirtualizingStackPanel.IsVirtualizing="True">
 
@@ -143,11 +146,11 @@
             <GridSplitter Grid.Row="1" 
                       HorizontalAlignment="Stretch" 
                       VerticalAlignment="Top"
-                      ResizeDirection="Rows"
+                      ResizeDirection="Auto"
                       Height="5"/>
 
             
-            <Grid Background="LightGray" Grid.Row="1" Margin="0 5 0 0">
+            <Grid Background="LightGray" Grid.Row="1" MinHeight="5" Margin="0 5 0 5">
                 <TabControl Grid.Column="1" Grid.Row="1">
                     <TabItem
                         Header="Search Results">
