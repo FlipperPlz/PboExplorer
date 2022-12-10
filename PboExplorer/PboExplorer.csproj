@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="BisUtils.Core" Version="1.0.31" />
     <PackageReference Include="BisUtils.PBO" Version="1.0.11" />
+    <PackageReference Include="Dragablz" Version="0.0.3.234" />
   </ItemGroup>
 
 </Project>

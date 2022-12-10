@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Controls;
 
-namespace PboExplorer.Utils; 
+namespace PboExplorer.Utils.Elements; 
 
 public class PlaceHolderTextBox : TextBox
 {

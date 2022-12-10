@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using BisUtils.PBO.Entries;
 using PboExplorer.Utils;
 
@@ -17,6 +18,15 @@ public class TreeDataEntry : ITreeItem {
     public ulong PackedSize => PboDataEntry.PackedSize;
     public ulong OriginalSize => PboDataEntry.OriginalSize;
     public ulong Timestamp => PboDataEntry.TimeStamp;
-    public byte[] GetEntryData => PboDataEntry.EntryData;
-    
+
+    public byte[] EntryData {
+        get => PboDataEntry.EntryData;
+        set => PboDataEntry.EntryData = value;
+    }
+
+    public string EntryDataText {
+        get => Encoding.UTF8.GetString(EntryData);
+        set => EntryData = Encoding.UTF8.GetBytes(value);
+    } 
+
 }
