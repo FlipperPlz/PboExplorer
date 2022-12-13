@@ -3,10 +3,7 @@ name: "Release"
 on:
   push:
     tags:
-      - "v*"
-
-env:
-  PROJECT_PATH: PboExplorer/PboExplorer.csproj
+       - "*.*.*"
 
 jobs:
   release:
@@ -21,21 +18,34 @@ jobs:
           dotnet-version: 6.0.x
 
       - name: Restore
-        run: dotnet restore ${{ env.PROJECT_PATH }}
+        run: dotnet restore --packages packages
 
       - name: Build
-        run: >
-          dotnet build ${{ env.PROJECT_PATH }} -c Release --no-restore
-          --self-contained=false -r win-x64 -p:PublishSingleFile=true
+        run: dotnet build -c Release -o ".\publish" --no-restore
+      
+      - name: Fetch previous release
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          packages\clowd.squirrel\2.9.42\tools\Squirrel.exe `
+          Squirrel github-down --repoUrl "https://github.com/FlipperPlz/PboExplorer"
 
       - name: Publish
-        run: >
-          dotnet publish ${{ env.PROJECT_PATH }} -c Release -o Releases --no-build
-          --self-contained=false -r win-x64 -p:PublishSingleFile=true
+        shell: pwsh
+        run: |
+          packages\clowd.squirrel\2.9.42\tools\Squirrel.exe  pack `
+          --framework net6 `
+          --packId "PboExplorer" `
+          --packVersion "${{github.ref_name}}" `
+          --packAuthors "${{github.repository_owner}}" `
+          --packDir ".\publish"
 
       - name: Create release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           draft: true
-          files: Releases/*.exe
+          files: |
+            Releases/RELEASES
+            Releases/*.exe
+            Releases/*.nupkg
