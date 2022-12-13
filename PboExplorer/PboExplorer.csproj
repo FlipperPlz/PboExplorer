@@ -6,11 +6,13 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
 	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	<ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="BisUtils.Core" Version="1.0.31" />
     <PackageReference Include="BisUtils.PBO" Version="1.0.11" />
+    <PackageReference Include="Clowd.Squirrel" Version="2.9.42" />
   </ItemGroup>
 
 </Project>

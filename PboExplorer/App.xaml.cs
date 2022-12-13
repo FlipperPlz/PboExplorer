@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Squirrel;
 
 namespace PboExplorer
 {
@@ -13,5 +14,17 @@ namespace PboExplorer
     /// </summary>
     public partial class App : Application
     {
+        protected override async void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            SquirrelAwareApp.HandleEvents(
+                onInitialInstall: InstallerConfiguration.OnAppInstall,
+                onAppUninstall: InstallerConfiguration.OnAppUninstall,
+                onEveryRun: InstallerConfiguration.OnAppRun
+            );
+
+            await InstallerConfiguration.UpdateApp();
+        }
     }
 }
