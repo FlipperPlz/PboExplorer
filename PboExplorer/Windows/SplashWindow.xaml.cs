@@ -34,11 +34,11 @@ namespace PboExplorer.Windows
             dlg.Title = "Load PBO archive";
             dlg.DefaultExt = ".pbo";
             dlg.Filter = "PBO File|*.pbo|Preview BI Files|*.paa;*.rvmat;*.bin;*.pac;*.p3d;*.wrp;*.sqm";
-            if (dlg.ShowDialog() == true) {
-                new PboExplorerWindow(new PboFile(File.Open(dlg.FileName, FileMode.Open, FileAccess.ReadWrite))).Show();
-                Close();
-            }
+            if (dlg.ShowDialog() != true) return;
             
+            new PboExplorerWindow(new PboFile(dlg.FileName)).Show();
+            Close();
+
         }
 
         private void CreateNewPBO(object sender, RoutedEventArgs e)
@@ -47,10 +47,9 @@ namespace PboExplorer.Windows
             dlg.Title = "Load PBO archive";
             dlg.DefaultExt = ".pbo";
             dlg.Filter = "PBO File|*.pbo|Preview BI Files|*.paa;*.rvmat;*.bin;*.pac;*.p3d;*.wrp;*.sqm";
-            if (dlg.ShowDialog() == true) {
-                new PboExplorerWindow(new PboFile(File.Create(Path.GetTempFileName()), PboFileOption.Create)).Show();
-                Close();
-            }
+            if (dlg.ShowDialog() != true) return;
+            new PboExplorerWindow(new PboFile(dlg.FileName, PboFileOption.Create)).Show();
+            Close();
         }
 
        

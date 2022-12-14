@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using BisUtils.PBO.Entries;
 using PboExplorer.Utils;
 
 namespace PboExplorer.TreeItems; 
 
 public class TreeDirectoryEntry : ITreeEnumerableItem {
+    private int? _hashCode;
+    
     public string Title { get; set; }
     public string Description { get; set; }
 
     public ITreeRoot TreeRoot { get; set; }
     public ITreeEnumerable TreeParent { get; set; }
+
 
     private readonly ObservableCollection<ITreeItem> _entryList = new();
     
@@ -92,5 +96,4 @@ public class TreeDirectoryEntry : ITreeEnumerableItem {
 
     public IEnumerable<TreeDataEntry> RecursivelyGrabAllFiles() => 
         Directories.SelectMany(d => d.RecursivelyGrabAllFiles()).Concat(Files);
-
 }

@@ -13,7 +13,10 @@
             DataType="{x:Type utils:ITreeEnumerableItem}"
             ItemsSource="{Binding TreeChildren}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding Title}" ToolTip="{Binding Description}"/>
+                    <TextBlock 
+                        Text="{Binding Title}" 
+                        DockPanel.Dock="Right"/>
+                
             </StackPanel>
         </HierarchicalDataTemplate>
     </Window.Resources>

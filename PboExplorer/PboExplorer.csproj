@@ -10,9 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BisUtils.Core" Version="1.0.31" />
-    <PackageReference Include="BisUtils.PBO" Version="1.0.11" />
+    <PackageReference Include="BisUtils.Core" Version="1.0.34" />
+    <PackageReference Include="BisUtils.PBO" Version="1.0.22" />
     <PackageReference Include="Clowd.Squirrel" Version="2.9.42" />
+    <PackageReference Include="System.Runtime.Caching" Version="7.0.0" />
   </ItemGroup>
 
 </Project>

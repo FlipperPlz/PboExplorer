@@ -7,7 +7,7 @@ using PboExplorer.Utils;
 
 namespace PboExplorer.TreeItems; 
 
-internal class EntryTreeRoot : ITreeRoot {
+public class EntryTreeRoot : ITreeRoot {
     private readonly ObservableCollection<ITreeItem> _entryList = new();
     
     public IEnumerable<TreeDataEntry> Files => _entryList.Where(s => s is TreeDataEntry).Cast<TreeDataEntry>();
@@ -52,7 +52,8 @@ internal class EntryTreeRoot : ITreeRoot {
                 found = new TreeDirectoryEntry {
                     Title = folders.First(),
                     TreeParent = this,
-                    TreeRoot = this
+                    TreeRoot = this,
+                    
                 };
                 AddChild(found);
                 var nextPaths = folders.Skip(1).ToList();

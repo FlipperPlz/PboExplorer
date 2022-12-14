@@ -5,6 +5,7 @@ using System.Text;
 namespace PboExplorer.Utils;
 
 public interface ITreeItem : IDescribable {
+
     string IDescribable.Description {
         get => TreePath;
         set => throw new NotSupportedException();
@@ -30,6 +31,7 @@ public interface ITreeItem : IDescribable {
         get; 
         set;
     }
+
 }
 
 

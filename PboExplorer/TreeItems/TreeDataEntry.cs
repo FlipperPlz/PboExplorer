@@ -11,12 +11,11 @@ public class TreeDataEntry : ITreeItem {
     public string Title { get; set; }
     public string Description { get; set; }
 
+
     public string FullPath => PboDataEntry.EntryName;
     public string Name => Path.GetFileName(PboDataEntry.EntryName);
     public string Extension => Path.GetExtension(Name);
     public ulong PackedSize => PboDataEntry.PackedSize;
     public ulong OriginalSize => PboDataEntry.OriginalSize;
     public ulong Timestamp => PboDataEntry.TimeStamp;
-    public byte[] GetEntryData => PboDataEntry.EntryData;
-    
 }
