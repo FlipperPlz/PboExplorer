@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using PboExplorer.TreeItems;
 
-namespace PboExplorer.Utils; 
+namespace PboExplorer.Utils.Interfaces; 
 
 public interface ITreeEnumerable {
     public ICollection<ITreeItem>? TreeChildren { get; set; }

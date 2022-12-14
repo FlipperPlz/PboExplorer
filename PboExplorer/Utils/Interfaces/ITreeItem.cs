@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using System.Windows;
-using PboExplorer.Entry;
+using PboExplorer.Managers;
 
-namespace PboExplorer.Utils;
+namespace PboExplorer.Utils.Interfaces;
 
 public interface ITreeItem : IDescribable {
 

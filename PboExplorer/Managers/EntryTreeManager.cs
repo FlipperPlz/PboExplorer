@@ -9,7 +9,7 @@ using BisUtils.PBO;
 using BisUtils.PBO.Entries;
 using PboExplorer.TreeItems;
 
-namespace PboExplorer.Entry;
+namespace PboExplorer.Managers;
 
 public class EntryTreeManager : IDisposable {
     public readonly PboFile PboFile;
@@ -41,12 +41,14 @@ public class EntryTreeManager : IDisposable {
         GC.SuppressFinalize(this);
     }
     
-    public class EntryDataStream : MemoryStream {
+    public sealed class EntryDataStream : MemoryStream {
         public readonly PboDataEntry PboDataEntry;
         public readonly byte[] OriginalDataCRC;
 
-        public EntryDataStream(PboDataEntry pboDataEntry) : base(pboDataEntry.EntryData) {
+        public EntryDataStream(PboDataEntry pboDataEntry) : base() {
             PboDataEntry = pboDataEntry;
+            var pboData = PboDataEntry.EntryData;
+            Write(pboData, 0, pboData.Length);
             OriginalDataCRC = CalculateChecksum();
         }
 
@@ -95,7 +97,7 @@ public class EntryTreeManager : IDisposable {
             }
         }
 
-        public bool IsCached(TreeDataEntry key) => _repositoryCache.Contains(GetUniqueEntryName(key), null!);
+        public bool IsCached(TreeDataEntry key) => _repositoryCache.Contains(GetUniqueEntryName(key), string.Empty);
 
         public bool IsCached(TreeDataEntry key, out EntryDataStream? dataStream) {
             if (!IsCached(key)) {
@@ -122,9 +124,6 @@ public class EntryTreeManager : IDisposable {
             return entryDataStream.IsEdited();
         }
 
-        public IEnumerable<EntryDataStream> GetCachedEntries() =>
-            _repositoryCache.GetValues(null!).Values.Cast<EntryDataStream>();
-
         public async Task SaveEntryData(TreeDataEntry key) {
             await _locker.WaitAsync();
             try {
@@ -139,8 +138,8 @@ public class EntryTreeManager : IDisposable {
         public async Task SaveAllEditedEntries() {
             await _locker.WaitAsync();
             try {
-                foreach (var cachedEntry in GetCachedEntries()) {
-                    if (cachedEntry.IsEdited()) cachedEntry.SyncToPBO();
+                foreach (var cachedEntry in _repositoryCache) {
+                    if(cachedEntry.Value is EntryDataStream dataStream && dataStream.IsEdited()) dataStream.SyncToPBO();
                 }
             }
             finally {

@@ -1,4 +1,4 @@
-﻿namespace PboExplorer.Utils; 
+﻿namespace PboExplorer.Utils.Interfaces; 
 
 public interface IDescribable {
     public string Title { get; set; }

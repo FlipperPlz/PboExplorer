@@ -2,10 +2,13 @@
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Navigation;
 using BisUtils.PBO;
-using PboExplorer.Entry;
+using PboExplorer.Managers;
 using PboExplorer.TreeItems;
+using PboExplorer.Utils;
+using PboExplorer.Utils.Extensions;
 
 namespace PboExplorer.Windows
 {
@@ -24,6 +27,10 @@ namespace PboExplorer.Windows
         private void SaveAs(object sender, RoutedEventArgs e) {
             throw new NotImplementedException();
         }
+        
+        private async void Save(object sender, RoutedEventArgs e) {
+            await TreeManager.DataRepository.SaveAllEditedEntries();
+        }
 
         private void Close(object sender, RoutedEventArgs e) {
             TreeManager.Dispose();
@@ -34,6 +41,7 @@ namespace PboExplorer.Windows
             if(TreeManager.SelectedEntry is null) return;
             Clipboard.SetText(TreeManager.SelectedEntry.FullPath);
         }
+        
 
         private void CopySelectedEntryData(object sender, RoutedEventArgs e) {
             if(TreeManager.SelectedEntry is null) return;
@@ -52,20 +60,21 @@ namespace PboExplorer.Windows
             throw new NotImplementedException();
         }
 
-        private async void SaveSelectedEntryToCache() {
+        private async void SaveSelectedEntryToCache(TreeViewItem eOriginalSource) {
             if (TreeManager.SelectedEntry is null) return;
-            await using var dataStream = await TreeManager.DataRepository.GetEntryDataStream(TreeManager.SelectedEntry);
-            dataStream.Flush();
+            var dataStream = await TreeManager.DataRepository.GetEntryDataStream(TreeManager.SelectedEntry);
+            dataStream.SetLength(0);
             dataStream.Write(Encoding.UTF8.GetBytes(TextPreview.Text));
             if (dataStream.IsEdited()) {
                 //TODO: Mark Entry As Edited In Tree
             }
         }
 
+
         private async void ShowPboEntry(object sender, RoutedPropertyChangedEventArgs<object> e) {
             switch (e.NewValue) {
                 case TreeDataEntry treeDataEntry: {
-                    SaveSelectedEntryToCache();
+                    SaveSelectedEntryToCache(PboView.ItemContainerGenerator.ContainerFromItemRecursive(PboView.SelectedItem));
                     TreeManager.SelectedEntry = treeDataEntry;
                     TextPreview.Visibility = Visibility.Visible;
                     TextPreview.Text = Encoding.UTF8.GetString((await TreeManager.DataRepository.GetEntryDataStream(treeDataEntry)).ToArray());
@@ -98,7 +107,21 @@ namespace PboExplorer.Windows
         }
 
         private async void PreviewEdited(object sender, TextChangedEventArgs e) {
-            
+           
         }
+        
+        private static T? GetFrameworkElementByName<T>(DependencyObject parent, string name) where T : FrameworkElement {
+            for (var i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++) {
+
+                var child = VisualTreeHelper.GetChild(parent, i) as FrameworkElement;
+
+                if (child is null || child.Name != name) continue;
+                var found = child as T;
+                if (found is not null) return found;
+            }
+
+            return null;
+        }
+
     }
 }

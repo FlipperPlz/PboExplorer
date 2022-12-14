@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using PboExplorer.Utils;
+using PboExplorer.Utils.Interfaces;
 
 namespace PboExplorer.TreeItems; 
 

@@ -2,8 +2,9 @@
 using System.IO;
 using System.Windows;
 using BisUtils.PBO.Entries;
-using PboExplorer.Entry;
+using PboExplorer.Managers;
 using PboExplorer.Utils;
+using PboExplorer.Utils.Interfaces;
 
 namespace PboExplorer.TreeItems; 
 

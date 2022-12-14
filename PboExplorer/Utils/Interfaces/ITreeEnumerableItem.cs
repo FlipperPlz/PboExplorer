@@ -1,9 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using System.Windows;
 
-namespace PboExplorer.Utils; 
+namespace PboExplorer.Utils.Interfaces; 
 
 public interface ITreeEnumerableItem : ITreeItem, ITreeEnumerable {
     string ITreeItem.TreePath {
