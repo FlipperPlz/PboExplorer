@@ -139,10 +139,6 @@ namespace PboExplorer.Windows
         private void ShowSearchResult(object sender, SelectionChangedEventArgs e) {
         }
 
-        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e) {
-            
-        }
-
         private void SubmitSearch(object sender, RoutedEventArgs e) {
             
         }
