@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using BisUtils.PBO;
 using PboExplorer.Entry;
+using PboExplorer.TreeItems;
 
 namespace PboExplorer.Windows
 {
@@ -12,7 +14,7 @@ namespace PboExplorer.Windows
     /// </summary>
     public partial class PboExplorerWindow {
         private readonly EntryTreeManager TreeManager;
-
+        
         public PboExplorerWindow(PboFile pboFile) {
             InitializeComponent();
             TreeManager = new EntryTreeManager(pboFile);
@@ -50,9 +52,30 @@ namespace PboExplorer.Windows
             throw new NotImplementedException();
         }
 
-        private void ShowPboEntry(object sender, RoutedPropertyChangedEventArgs<object> e) {
-            throw new NotImplementedException();
+        private async void SaveSelectedEntryToCache() {
+            if (TreeManager.SelectedEntry is null) return;
+            await using var dataStream = await TreeManager.DataRepository.GetEntryDataStream(TreeManager.SelectedEntry);
+            dataStream.Flush();
+            dataStream.Write(Encoding.UTF8.GetBytes(TextPreview.Text));
+            if (dataStream.IsEdited()) {
+                //TODO: Mark Entry As Edited In Tree
+            }
         }
+
+        private async void ShowPboEntry(object sender, RoutedPropertyChangedEventArgs<object> e) {
+            switch (e.NewValue) {
+                case TreeDataEntry treeDataEntry: {
+                    SaveSelectedEntryToCache();
+                    TreeManager.SelectedEntry = treeDataEntry;
+                    TextPreview.Visibility = Visibility.Visible;
+                    TextPreview.Text = Encoding.UTF8.GetString((await TreeManager.DataRepository.GetEntryDataStream(treeDataEntry)).ToArray());
+                    break;    
+                }
+                default: return;
+            }
+        }
+        
+        
 
         private void ConfigEntry_Drop(object sender, DragEventArgs e) {
             throw new NotImplementedException();
@@ -72,6 +95,10 @@ namespace PboExplorer.Windows
 
         private void SubmitSearch(object sender, RoutedEventArgs e) {
             throw new NotImplementedException();
+        }
+
+        private async void PreviewEdited(object sender, TextChangedEventArgs e) {
+            
         }
     }
 }

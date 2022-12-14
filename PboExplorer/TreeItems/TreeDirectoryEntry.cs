@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Windows;
+using PboExplorer.Entry;
 using PboExplorer.Utils;
 
 namespace PboExplorer.TreeItems; 
 
 public class TreeDirectoryEntry : ITreeEnumerableItem {
-    private int? _hashCode;
-    
     public string Title { get; set; }
     public string Description { get; set; }
-
+    public EntryTreeManager TreeManager { get; set; }
+    
     public ITreeRoot TreeRoot { get; set; }
     public ITreeEnumerable TreeParent { get; set; }
 

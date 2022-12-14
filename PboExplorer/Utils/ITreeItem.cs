@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Windows;
+using PboExplorer.Entry;
 
 namespace PboExplorer.Utils;
 
@@ -11,6 +13,8 @@ public interface ITreeItem : IDescribable {
         set => throw new NotSupportedException();
     }
     
+    public EntryTreeManager TreeManager { get; set; }
+
     public string TreePath {
         get {
             var pathBuilder = new StringBuilder();

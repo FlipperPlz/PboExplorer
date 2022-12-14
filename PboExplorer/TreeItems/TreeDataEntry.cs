@@ -1,5 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Windows;
 using BisUtils.PBO.Entries;
+using PboExplorer.Entry;
 using PboExplorer.Utils;
 
 namespace PboExplorer.TreeItems; 
@@ -10,7 +13,8 @@ public class TreeDataEntry : ITreeItem {
     public ITreeEnumerable TreeParent { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
-
+    
+    public EntryTreeManager TreeManager { get; set; }
 
     public string FullPath => PboDataEntry.EntryName;
     public string Name => Path.GetFileName(PboDataEntry.EntryName);

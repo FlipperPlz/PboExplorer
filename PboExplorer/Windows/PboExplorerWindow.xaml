@@ -16,7 +16,11 @@
                     <TextBlock 
                         Text="{Binding Title}" 
                         DockPanel.Dock="Right"/>
-                
+                    <TextBlock
+                        Visibility="Hidden"
+                        Margin="5 0 0 0"
+                        Text="(edited)"
+                        DockPanel.Dock="Left"/>
             </StackPanel>
         </HierarchicalDataTemplate>
     </Window.Resources>
@@ -89,30 +93,6 @@
                     ItemTemplate="{StaticResource EntryTreeTemplate}"
                     SelectedItemChanged="ShowPboEntry"
                     VirtualizingStackPanel.IsVirtualizing="True">
-                    <TreeView.ContextMenu>
-                        <ContextMenu
-                            Name="TreeViewContextMenu">
-                            <MenuItem 
-                                Name="TreeViewCtxDelete"
-                                Header="Delete Entry"
-                                Visibility="Hidden"
-                                Click="DeleteSelectedEntry"/>
-                            <MenuItem 
-                                Name="TreeViewCtxCopyData"
-                                Header="Copy Entry Data"
-                                Visibility="Hidden"
-                                Click="CopySelectedEntryData"/>
-                            <MenuItem 
-                                Name="TreeViewCtxCopyName"
-                                Header="Copy Entry Name"
-                                Visibility="Hidden"
-                                Click="CopySelectedEntryName"/>
-                            <Separator/>
-                            <MenuItem
-                                Header="Add New Entry..."
-                                Click="AddEntryWizard"/>
-                        </ContextMenu>
-                    </TreeView.ContextMenu>
                 </TreeView>
             </TabItem>
             <TabItem
@@ -140,8 +120,8 @@
                      AcceptsReturn="True"
                      VerticalScrollBarVisibility="Visible"
                      FontFamily="Consolas"
-                     IsReadOnly="True" 
-                     IsReadOnlyCaretVisible="True"
+                     Visibility="Hidden"
+                     TextChanged="PreviewEdited"
             />
 
             

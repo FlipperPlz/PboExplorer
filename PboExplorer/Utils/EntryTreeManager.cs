@@ -84,10 +84,10 @@ public class EntryTreeManager : IDisposable {
             await _locker.WaitAsync();
             try {
                 var uniqueName = GetUniqueEntryName(key);
-                if (_repositoryCache.Contains(uniqueName, "entries"))
-                    return (EntryDataStream)_repositoryCache.Get(uniqueName, "entries");
+                if (_repositoryCache.Contains(uniqueName))
+                    return (EntryDataStream)_repositoryCache.Get(uniqueName);
                 var dataStream = new EntryDataStream(key.PboDataEntry);
-                _repositoryCache.Add(uniqueName, dataStream, _entryCachingPolicy, "entries");
+                _repositoryCache.Add(uniqueName, dataStream, _entryCachingPolicy);
                 return dataStream;
             }
             finally {
@@ -95,7 +95,7 @@ public class EntryTreeManager : IDisposable {
             }
         }
 
-        public bool IsCached(TreeDataEntry key) => _repositoryCache.Contains(GetUniqueEntryName(key), "entries");
+        public bool IsCached(TreeDataEntry key) => _repositoryCache.Contains(GetUniqueEntryName(key), null!);
 
         public bool IsCached(TreeDataEntry key, out EntryDataStream? dataStream) {
             if (!IsCached(key)) {
@@ -103,7 +103,7 @@ public class EntryTreeManager : IDisposable {
                 return false;
             }
 
-            dataStream = (EntryDataStream)_repositoryCache.Get(GetUniqueEntryName(key), "entries");
+            dataStream = (EntryDataStream)_repositoryCache.Get(GetUniqueEntryName(key));
             return true;
         }
 
@@ -123,7 +123,7 @@ public class EntryTreeManager : IDisposable {
         }
 
         public IEnumerable<EntryDataStream> GetCachedEntries() =>
-            _repositoryCache.GetValues("entries").Values.Cast<EntryDataStream>();
+            _repositoryCache.GetValues(null!).Values.Cast<EntryDataStream>();
 
         public async Task SaveEntryData(TreeDataEntry key) {
             await _locker.WaitAsync();
