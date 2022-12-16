@@ -12,8 +12,8 @@ namespace PboExplorer.Models;
 public class EntryTreeRoot : ITreeRoot {
     private readonly ObservableCollection<ITreeItem> _entryList = new();
     
-    public IEnumerable<TreeDataEntry> Files => ((ITreeEnumerable)this).Files;
-    public IEnumerable<TreeDirectoryEntry> Directories => ((ITreeEnumerable)this).Directories;
+    public IEnumerable<TreeDataEntry> Files => TreeChildren!.Where(s => s is TreeDataEntry).Cast<TreeDataEntry>();
+    public IEnumerable<TreeDirectoryEntry> Directories => TreeChildren!.Where(s => s is TreeDirectoryEntry).Cast<TreeDirectoryEntry>();
     
     public EntryTreeManager TreeManager { get; set; }
     public EntryDataRepository DataRepository { get; set; }
@@ -48,6 +48,4 @@ public class EntryTreeRoot : ITreeRoot {
     public IEnumerable<TreeDataEntry> RecursivelyGrabAllFiles() => 
         Directories.SelectMany(d => d.RecursivelyGrabAllFiles()).Concat(Files);
     
-    public T GetOrCreateChild<T>(string title) where T : ITreeItem => ((ITreeEnumerable)this).GetOrCreateChild<T>(title);
-
 }

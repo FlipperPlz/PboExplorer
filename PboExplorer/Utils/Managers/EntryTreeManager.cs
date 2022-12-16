@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using BisUtils.PBO;
 using PboExplorer.Models;
+using PboExplorer.Utils.Interfaces;
 using PboExplorer.Utils.Repositories;
 
 namespace PboExplorer.Utils.Managers;
@@ -21,7 +23,12 @@ public class EntryTreeManager : IDisposable {
 
     private void SyncEntryRoot() {
         foreach (var entry in PboFile.GetDataEntries())
-            EntryRoot.GetOrCreateChild<TreeDataEntry>(entry.EntryName).PboDataEntry = entry;
+            ((ITreeEnumerable)EntryRoot).GetOrCreateChild<TreeDataEntry>(entry.EntryName).PboDataEntry = entry;
+    }
+
+    public async Task<EntryDataStream> GetCurrentEntryData() {
+        if (SelectedEntry is null) throw new Exception();
+        return await DataRepository.GetOrCreateEntryDataStream(SelectedEntry);
     }
 
 

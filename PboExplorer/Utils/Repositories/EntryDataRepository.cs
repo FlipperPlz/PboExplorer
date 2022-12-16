@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Caching;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +26,7 @@ public class EntryDataRepository : IDisposable {
     public string GetUniqueEntryName(TreeDataEntry entry) =>
         $"{entry.PboDataEntry.EntryParent.GetHashCode()}.{entry.PboDataEntry.GetHashCode()}.{entry.GetHashCode()}";
 
-    public async Task<EntryDataStream> GetEntryDataStream(TreeDataEntry key) {
+    public async Task<EntryDataStream> GetOrCreateEntryDataStream(TreeDataEntry key) {
         await _locker.WaitAsync();
         try {
             var uniqueName = GetUniqueEntryName(key);
@@ -37,6 +39,35 @@ public class EntryDataRepository : IDisposable {
         finally {
             _locker.Release();
         }
+    }
+    
+    /// <summary>
+    ///  Checks cache for any edited entries
+    /// </summary>
+    /// <returns>False if all files are stock. </returns>
+    public bool AreFilesEdited(out IEnumerable<EntryDataStream> dataStreams) {
+        var streams = new List<EntryDataStream>();
+        
+        foreach (var cache in _repositoryCache) {
+            if(cache.Value is not EntryDataStream dataStream) continue;
+            if(!dataStream.IsEdited()) continue;
+            streams.Add(dataStream);
+        }
+
+        dataStreams = streams;
+
+        return streams.Any();
+    }
+    
+    public bool AreFilesEdited() {
+
+        foreach (var cache in _repositoryCache) {
+            if (cache.Value is not EntryDataStream dataStream) continue;
+            if (!dataStream.IsEdited()) continue;
+            return true;
+        }
+
+        return false;
     }
 
     public bool IsCached(TreeDataEntry key) => _repositoryCache.Contains(GetUniqueEntryName(key), string.Empty);

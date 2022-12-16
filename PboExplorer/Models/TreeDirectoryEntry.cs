@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using PboExplorer.Utils.Interfaces;
 using PboExplorer.Utils.Managers;
@@ -14,8 +16,8 @@ public class TreeDirectoryEntry : ITreeEnumerableItem {
     public EntryDataRepository DataRepository { get; set; }
     public ITreeRoot TreeRoot { get; set; }
     public ITreeEnumerable TreeParent { get; set; }
-    public IEnumerable<TreeDataEntry> Files => ((ITreeEnumerable)this).Files;
-    public IEnumerable<TreeDirectoryEntry> Directories => ((ITreeEnumerable)this).Directories;
+    public IEnumerable<TreeDataEntry> Files => TreeChildren!.Where(s => s is TreeDataEntry).Cast<TreeDataEntry>();
+    public IEnumerable<TreeDirectoryEntry> Directories =>  TreeChildren!.Where(s => s is TreeDirectoryEntry).Cast<TreeDirectoryEntry>();
 
 
     private readonly ObservableCollection<ITreeItem> _entryList = new();
@@ -37,9 +39,6 @@ public class TreeDirectoryEntry : ITreeEnumerableItem {
         }
     }
 
-    
-    
-    
     public ITreeItem AddChild(ITreeItem child) {
         _entryList.Add(child);
         

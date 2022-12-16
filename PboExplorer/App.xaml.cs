@@ -17,7 +17,6 @@ namespace PboExplorer
         protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
             SquirrelAwareApp.HandleEvents(
                 onInitialInstall: InstallerConfiguration.OnAppInstall,
                 onAppUninstall: InstallerConfiguration.OnAppUninstall,
