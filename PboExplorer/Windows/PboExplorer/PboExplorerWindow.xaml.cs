@@ -5,11 +5,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Navigation;
 using BisUtils.PBO;
 using PboExplorer.Models;
-using PboExplorer.Utils.Extensions;
 using PboExplorer.Utils.Managers;
 
 namespace PboExplorer.Windows.PboExplorer
@@ -97,8 +94,8 @@ namespace PboExplorer.Windows.PboExplorer
             TreeManager.ClearSearchResults();
             SearchResultsView.ItemsSource = TreeManager.SearchResults;
             SearchButton.IsEnabled = false;
-            TreeManager.SearchResults = await TreeManager.SearchForString(search, false);
-            SearchResultsView.ItemsSource = TreeManager.SearchResults;
+            TreeManager.SearchResults.Clear();
+            foreach (var fileSearchResult in await TreeManager.SearchForString(search, false)) TreeManager.SearchResults.Add(fileSearchResult);
             SearchButton.IsEnabled = true;
         }
 

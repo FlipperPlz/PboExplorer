@@ -6,7 +6,7 @@ using PboExplorer.Utils.Repositories;
 
 namespace PboExplorer.Utils.Interfaces;
 
-public interface ITreeItem : IDescribable, IEntryTreeManaged {
+public interface ITreeItem : IDescribable, IEntryTreeManaged, IComparable<ITreeItem> {
 
     string IDescribable.Description {
         get => TreePath;
@@ -33,7 +33,7 @@ public interface ITreeItem : IDescribable, IEntryTreeManaged {
         get; 
         set;
     }
-
+    
 }
 
 

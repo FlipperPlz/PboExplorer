@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using BisUtils.PBO;
@@ -14,18 +15,18 @@ public class EntryTreeManager : IDisposable {
     public readonly EntryTreeRoot EntryRoot;
     public readonly EntryDataRepository DataRepository = new();
     public TreeDataEntry? SelectedEntry = null;
-    public IEnumerable<FileSearchResult> SearchResults;
+    public ObservableCollection<FileSearchResult> SearchResults;
 
     private bool _disposed;
 
     public EntryTreeManager(PboFile pboFile) {
         PboFile = pboFile;
         EntryRoot = new EntryTreeRoot(this);
-        SearchResults = new List<FileSearchResult>();
+        SearchResults = new ObservableCollection<FileSearchResult>();
         SyncEntryRoot();
     }
 
-    public void ClearSearchResults() => SearchResults = new List<FileSearchResult>();
+    public void ClearSearchResults() => SearchResults.Clear();
 
     private void SyncEntryRoot() {
         foreach (var entry in PboFile.GetDataEntries())

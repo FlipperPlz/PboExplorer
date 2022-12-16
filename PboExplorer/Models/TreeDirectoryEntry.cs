@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -10,7 +11,7 @@ using PboExplorer.Utils.Repositories;
 
 namespace PboExplorer.Models;
 
-public class TreeDirectoryEntry : ITreeEnumerableItem {
+public class TreeDirectoryEntry : ITreeEnumerableItem, IComparable<TreeDirectoryEntry> {
     public string Title { get; set; }
     public string Description { get; set; }
     public EntryTreeManager TreeManager { get; set; }
@@ -19,26 +20,23 @@ public class TreeDirectoryEntry : ITreeEnumerableItem {
     public ITreeEnumerable TreeParent { get; set; }
     public IEnumerable<TreeDataEntry> Files => TreeChildren!.Where(s => s is TreeDataEntry).Cast<TreeDataEntry>();
     public bool CurrentlySearching { get; private set; }
-    
-    
+
     public IEnumerable<TreeDirectoryEntry> Directories =>
         TreeChildren!.Where(s => s is TreeDirectoryEntry).Cast<TreeDirectoryEntry>();
 
 
     private readonly ObservableCollection<ITreeItem> _entryList = new();
-
-
+    
     public TreeDirectoryEntry(EntryTreeManager treeManager) {
         TreeManager = treeManager;
         DataRepository = treeManager.DataRepository;
         TreeRoot = treeManager.EntryRoot;
     }
 
-    public ICollection<ITreeItem>? TreeChildren {
-        get => _entryList;
+    public ObservableCollection<ITreeItem> TreeChildren {
+        get => new (_entryList.ToImmutableSortedSet());
         set {
             _entryList.Clear();
-            if (value == null) return;
             foreach (var treeItem in value)
                 _entryList.Add(treeItem);
         }
@@ -68,4 +66,21 @@ public class TreeDirectoryEntry : ITreeEnumerableItem {
 
     public IEnumerable<TreeDataEntry> RecursivelyGrabAllFiles() =>
         Directories.SelectMany(d => d.RecursivelyGrabAllFiles()).Concat(Files);
+
+    public int CompareTo(TreeDirectoryEntry? other) {
+        if (ReferenceEquals(this, other)) return 0;
+        if (ReferenceEquals(null, other)) return 1;
+        var titleComparison = string.Compare(Title, other.Title, StringComparison.Ordinal);
+        return titleComparison != 0 ? titleComparison : string.Compare(Description, other.Description, StringComparison.Ordinal);
+    }
+
+    public int CompareTo(ITreeItem? other) {
+        if (ReferenceEquals(this, other)) return 0;
+        if (ReferenceEquals(null, other)) return 1;
+        return other switch {
+            TreeDirectoryEntry treeDirectoryEntry => CompareTo(treeDirectoryEntry),
+            TreeDataEntry => -1,
+            _ => 0
+        };
+    }
 }

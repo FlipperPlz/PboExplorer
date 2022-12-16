@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -24,8 +25,8 @@ public class EntryTreeRoot : ITreeRoot {
         DataRepository = treeManager.DataRepository;
     }
     
-    public ICollection<ITreeItem>? TreeChildren {
-        get => _entryList;
+    public ObservableCollection<ITreeItem>? TreeChildren {
+        get =>  new(_entryList.ToImmutableSortedSet());
         set {
             _entryList.Clear();
             if (value == null) return;

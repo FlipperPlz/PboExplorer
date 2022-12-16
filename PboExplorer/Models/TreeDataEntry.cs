@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,10 @@ using PboExplorer.Utils.Repositories;
 
 namespace PboExplorer.Models; 
 
-public class TreeDataEntry : ITreeItem {
+public class TreeDataEntry : ITreeItem, IComparable<TreeDataEntry> {
+    private readonly ObservableCollection<ITreeItem> _entryList = new();
+
+    
     public PboDataEntry PboDataEntry { get; set; }
     public ITreeRoot TreeRoot { get; set; }
     public ITreeEnumerable TreeParent { get; set; }
@@ -57,5 +61,23 @@ public class TreeDataEntry : ITreeItem {
         }
 
         return new FileSearchResult(this, searchResults);
+    }
+
+
+    public int CompareTo(TreeDataEntry? other) {
+        if (ReferenceEquals(this, other)) return 0;
+        if (ReferenceEquals(null, other)) return 1;
+        var titleComparison = string.Compare(Title, other.Title, StringComparison.Ordinal);
+        return titleComparison != 0 ? titleComparison : string.Compare(Description, other.Description, StringComparison.Ordinal);
+    }
+
+    public int CompareTo(ITreeItem? other) {
+        if (ReferenceEquals(this, other)) return 0;
+        if (ReferenceEquals(null, other)) return 1;
+        return other switch {
+            TreeDirectoryEntry => 1,
+            TreeDataEntry treeDataEntry => CompareTo(treeDataEntry),
+            _ => 0
+        };
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using PboExplorer.Models;
@@ -7,7 +8,7 @@ using PboExplorer.Models;
 namespace PboExplorer.Utils.Interfaces; 
 
 public interface ITreeEnumerable: IEntryTreeManaged {
-    public ICollection<ITreeItem>? TreeChildren { get; set; }
+    public ObservableCollection<ITreeItem> TreeChildren { get; set; }
     public IEnumerable<TreeDataEntry> Files { get; }
     public IEnumerable<TreeDirectoryEntry> Directories { get; }
 
