@@ -22,23 +22,37 @@ public sealed class EntryDataStream : MemoryStream {
         OriginalDataCRC = CalculateChecksum();
     }
 
-    public bool IsEdited() => !CalculateChecksum().SequenceEqual(OriginalDataCRC);
+    public bool IsEdited() {
+        return !CalculateChecksum().SequenceEqual(OriginalDataCRC);
+    }
+        
 
     public byte[] CalculateChecksum() {
 #pragma warning disable SYSLIB0021
         using var sha1 = new System.Security.Cryptography.SHA1CryptoServiceProvider();
 #pragma warning restore SYSLIB0021
-        return sha1.ComputeHash(ToArray());
+        return sha1.ComputeHash(EntryData);
     }
 
-    public void SyncFromStream(Stream s, bool keepOpen = false) {
-        using(var memoryStream = new MemoryStream()) {
-            s.CopyTo(memoryStream);
-            EntryData = memoryStream.ToArray();
+    public async void SyncFromStream(Stream s, bool keepOpen = false) {
+        switch (s) {
+            case MemoryStream memoryStream: {
+                EntryData = memoryStream.ToArray();
+                if (!keepOpen) await memoryStream.DisposeAsync();
+                break;
+            }
+            default: {
+                using var memoryStream = new MemoryStream();
+                await s.CopyToAsync(memoryStream);
+                EntryData = memoryStream.ToArray();
+                break;
+            }
         }
-        if(!keepOpen) s.Dispose();
+        if(!keepOpen) await s.DisposeAsync();
     }
     
     public void SyncFromPbo() => EntryData = PboDataEntry.EntryData;
-    public void SyncToPBO() => PboDataEntry.EntryData = ToArray();
+
+    public void SyncToPBO() => PboDataEntry.EntryParent.OverwriteEntryData(PboDataEntry, ToArray(),
+        PboDataEntry.EntryMagic == PboEntryMagic.Compressed, true);
 }
