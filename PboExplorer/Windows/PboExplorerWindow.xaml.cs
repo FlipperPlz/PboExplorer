@@ -5,10 +5,9 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Navigation;
 using BisUtils.PBO;
-using PboExplorer.Managers;
-using PboExplorer.TreeItems;
-using PboExplorer.Utils;
+using PboExplorer.Models;
 using PboExplorer.Utils.Extensions;
+using PboExplorer.Utils.Managers;
 
 namespace PboExplorer.Windows
 {

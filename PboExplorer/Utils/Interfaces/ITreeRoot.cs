@@ -1,5 +1,5 @@
 ﻿namespace PboExplorer.Utils.Interfaces; 
 
-public interface ITreeRoot : ITreeEnumerable {
+public interface ITreeRoot : ITreeEnumerable, IEntryTreeManaged {
     
 }

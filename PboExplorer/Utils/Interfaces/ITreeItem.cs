@@ -1,18 +1,17 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using PboExplorer.Managers;
+using PboExplorer.Utils.Managers;
+using PboExplorer.Utils.Repositories;
 
 namespace PboExplorer.Utils.Interfaces;
 
-public interface ITreeItem : IDescribable {
+public interface ITreeItem : IDescribable, IEntryTreeManaged {
 
     string IDescribable.Description {
         get => TreePath;
         set => throw new NotSupportedException();
     }
-    
-    public EntryTreeManager TreeManager { get; set; }
 
     public string TreePath {
         get {

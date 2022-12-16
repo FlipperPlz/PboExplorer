@@ -1,12 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Windows;
+﻿using System.IO;
 using BisUtils.PBO.Entries;
-using PboExplorer.Managers;
-using PboExplorer.Utils;
 using PboExplorer.Utils.Interfaces;
+using PboExplorer.Utils.Managers;
+using PboExplorer.Utils.Repositories;
 
-namespace PboExplorer.TreeItems; 
+namespace PboExplorer.Models; 
 
 public class TreeDataEntry : ITreeItem {
     public PboDataEntry PboDataEntry { get; set; }
@@ -16,6 +14,13 @@ public class TreeDataEntry : ITreeItem {
     public string Description { get; set; }
     
     public EntryTreeManager TreeManager { get; set; }
+    public EntryDataRepository DataRepository { get; set; }
+
+    public TreeDataEntry(EntryTreeManager treeManager) {
+        TreeManager = treeManager;
+        DataRepository = treeManager.DataRepository;
+        TreeRoot = treeManager.EntryRoot;
+    }
 
     public string FullPath => PboDataEntry.EntryName;
     public string Name => Path.GetFileName(PboDataEntry.EntryName);

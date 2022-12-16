@@ -110,10 +110,10 @@ internal class SplashViewModel : INotifyPropertyChanged
 
     private void MovePinnedMruItemDown(object p)
     {
-        if (p is not IMRUEntryViewModel params)
+        if (p is not IMRUEntryViewModel parameters)
             return;
 
-        MRUFileList.MovePinnedEntry(MoveMRUItem.Down, params);
+        MRUFileList.MovePinnedEntry(MoveMRUItem.Down, parameters);
     }
 
     private void CreateNewPBO()
