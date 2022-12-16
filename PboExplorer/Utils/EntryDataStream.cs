@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using BisUtils.PBO.Entries;
 
 namespace PboExplorer.Utils;
@@ -21,7 +22,7 @@ public sealed class EntryDataStream : MemoryStream {
         OriginalDataCRC = CalculateChecksum();
     }
 
-    public bool IsEdited() => CalculateChecksum() != OriginalDataCRC;
+    public bool IsEdited() => !CalculateChecksum().SequenceEqual(OriginalDataCRC);
 
     public byte[] CalculateChecksum() {
 #pragma warning disable SYSLIB0021
@@ -37,6 +38,7 @@ public sealed class EntryDataStream : MemoryStream {
         }
         if(!keepOpen) s.Dispose();
     }
+    
     public void SyncFromPbo() => EntryData = PboDataEntry.EntryData;
     public void SyncToPBO() => PboDataEntry.EntryData = ToArray();
 }

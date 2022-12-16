@@ -70,7 +70,7 @@ public class EntryDataRepository : IDisposable {
         return false;
     }
 
-    public bool IsCached(TreeDataEntry key) => _repositoryCache.Contains(GetUniqueEntryName(key), string.Empty);
+    public bool IsCached(TreeDataEntry key) => _repositoryCache.Contains(GetUniqueEntryName(key), null!);
 
     public bool IsCached(TreeDataEntry key, out EntryDataStream? dataStream) {
         if (!IsCached(key)) {
