@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Windows;
-using PboExplorer.ViewModels;
+using PboExplorer.Windows.Splash.Views.RecentFiles.ViewModels;
 
-namespace PboExplorer.Windows
+namespace PboExplorer.Windows.Splash
 {
     /// <summary>
     /// Interaction logic for SplashWindow.xaml

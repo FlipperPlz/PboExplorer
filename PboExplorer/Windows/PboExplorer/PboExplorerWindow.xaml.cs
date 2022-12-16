@@ -9,7 +9,7 @@ using PboExplorer.Models;
 using PboExplorer.Utils.Extensions;
 using PboExplorer.Utils.Managers;
 
-namespace PboExplorer.Windows
+namespace PboExplorer.Windows.PboExplorer
 {
     /// <summary>
     /// Interaction logic for PboExplorerWindow.xaml
@@ -94,10 +94,6 @@ namespace PboExplorer.Windows
         }
 
         private void ShowSearchResult(object sender, SelectionChangedEventArgs e) {
-            throw new NotImplementedException();
-        }
-
-        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e) {
             throw new NotImplementedException();
         }
 

@@ -3,19 +3,16 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using BisUtils.PBO;
 using Microsoft.Win32;
-
 using MRULib;
 using MRULib.MRU.Enums;
 using MRULib.MRU.Interfaces;
 using MRULib.MRU.Models.Persist;
 using MRULib.MRU.ViewModels.Base;
+using PboExplorer.Windows.PboExplorer;
 
-using BisUtils.PBO;
-using PboExplorer.Windows;
-
-
-namespace PboExplorer.ViewModels;
+namespace PboExplorer.Windows.Splash.Views.RecentFiles.ViewModels;
 
 internal class SplashViewModel : INotifyPropertyChanged
 {
@@ -49,7 +46,7 @@ internal class SplashViewModel : INotifyPropertyChanged
         // TODO: In case of adoption MVVM framework replace MRULib's RelayCommand
         CreatePBOCommand = new RelayCommand<object>(_ => CreateNewPBO());
         OpenPBOCommand = new RelayCommand<object>(_ => OpenPBOFileWithDialog());
-        NavigateUriCommand = new RelayCommand<string>(OpenPBOFfile);
+        NavigateUriCommand = new RelayCommand<string>(OpenPBOFile);
         ClearAllItemsCommand = new RelayCommand<object>(_ => ClearMRU());
         RemoveItemCommand = new RelayCommand<object>((p) => RemoveMRUItem(p as IMRUEntryViewModel));
         MovePinnedMruItemUpCommand = new RelayCommand<object>(MovePinnedMruItemUp, CanMovePinnedMruItemUp);
@@ -81,31 +78,21 @@ internal class SplashViewModel : INotifyPropertyChanged
         MRUEntrySerializer.Save(persistPath, MRUFileList);
     }
 
-    private bool CanMovePinnedMruItemUp(object p)
-    {
-        if (p is not IMRUEntryViewModel ||
-           (p as IMRUEntryViewModel)?.IsPinned == 0) //Make sure it is pinned
-           return false;
-        return true;
+    private bool CanMovePinnedMruItemUp(object p) {
+        return p is IMRUEntryViewModel model &&
+               model?.IsPinned != 0; //Make sure it is pinned
     }
 
     private void MovePinnedMruItemUp(object p)
     {
-        if (p is not IMRUEntryViewModel)
-            return;
+        if (p is not IMRUEntryViewModel model) return;
 
-        var param = p as IMRUEntryViewModel;
-
-        MRUFileList.MovePinnedEntry(MoveMRUItem.Up, param);
+        MRUFileList.MovePinnedEntry(MoveMRUItem.Up, model);
     }
 
-    private bool CanMovePinnedMruItemDown(object p)
-    {
-        if (p is not IMRUEntryViewModel ||
-           (p as IMRUEntryViewModel)?.IsPinned == 0) //Make sure it is pinned
-            return false;
-
-        return true;
+    private bool CanMovePinnedMruItemDown(object p) {
+        return p is IMRUEntryViewModel model &&
+               model?.IsPinned != 0; //Make sure it is pinned
     }
 
     private void MovePinnedMruItemDown(object p)
@@ -130,7 +117,7 @@ internal class SplashViewModel : INotifyPropertyChanged
         NavigateToPboExplorerWindow(new PboFile(dlg.FileName, PboFileOption.Create));
     }
 
-    private void OpenPBOFfile(string path)
+    private void OpenPBOFile(string path)
     {
 
         if (string.IsNullOrWhiteSpace(path))

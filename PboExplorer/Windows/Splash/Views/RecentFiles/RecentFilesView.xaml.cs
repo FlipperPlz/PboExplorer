@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace PboExplorer.Views
+namespace PboExplorer.Windows.Splash.Views.RecentFiles
 {
     /// <summary>
     /// Interaction logic for RecentFilesView.xaml
