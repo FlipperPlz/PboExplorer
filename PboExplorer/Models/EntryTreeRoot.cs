@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using PboExplorer.Utils.Interfaces;
 using PboExplorer.Utils.Managers;
 using PboExplorer.Utils.Repositories;
@@ -45,6 +46,13 @@ public class EntryTreeRoot : ITreeRoot {
         _entryList.Remove(child);
     }
 
+    public async Task<IEnumerable<FileSearchResult>> SearchForString(string search, bool cacheIfNotAlready) {
+        var results = new List<FileSearchResult>();
+        foreach (var dataEntry in RecursivelyGrabAllFiles()) 
+            results.Add(await dataEntry.SearchForString(search, cacheIfNotAlready));
+        return results;
+    }
+    
     public IEnumerable<TreeDataEntry> RecursivelyGrabAllFiles() => 
         Directories.SelectMany(d => d.RecursivelyGrabAllFiles()).Concat(Files);
     

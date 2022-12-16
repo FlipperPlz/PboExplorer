@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -57,10 +58,6 @@ namespace PboExplorer.Windows.PboExplorer
             throw new NotImplementedException();
         }
 
-        private void PboEntry_Drop(object sender, DragEventArgs e) {
-            throw new NotImplementedException();
-        }
-
         private async void PromptEntrySave() {
             if (TreeManager.SelectedEntry is null) return;
             var dataStream = await TreeManager.GetCurrentEntryData();
@@ -82,42 +79,54 @@ namespace PboExplorer.Windows.PboExplorer
                     break;
             }
         }
+        
+        
+        private async Task ShowPboEntry(TreeDataEntry treeDataEntry) {
+            PromptEntrySave();
+            TreeManager.SelectedEntry = treeDataEntry;
+            TextPreview.Visibility = Visibility.Visible;
+            TextPreview.Text = Encoding.UTF8.GetString((await TreeManager.DataRepository.GetOrCreateEntryDataStream(treeDataEntry)).ToArray());
+        }
 
+        private void CanSave(object sender, CanExecuteRoutedEventArgs e) =>
+            e.CanExecute = TreeManager.DataRepository.AreFilesEdited();
 
-        private async void ShowPboEntry(object sender, RoutedPropertyChangedEventArgs<object> e) {
+        private async void SearchButton_Click(object sender, RoutedEventArgs e) {
+            var search = SearchBox.Text;
+            if(string.IsNullOrWhiteSpace(search)) return;
+            TreeManager.ClearSearchResults();
+            SearchResultsView.ItemsSource = TreeManager.SearchResults;
+            SearchButton.IsEnabled = false;
+            TreeManager.SearchResults = await TreeManager.SearchForString(search, false);
+            SearchResultsView.ItemsSource = TreeManager.SearchResults;
+            SearchButton.IsEnabled = true;
+        }
+
+        private async void PboView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e) {
             switch (e.NewValue) {
                 case TreeDataEntry treeDataEntry: {
-                    PromptEntrySave();
-                    TreeManager.SelectedEntry = treeDataEntry;
-                    TextPreview.Visibility = Visibility.Visible;
-                    TextPreview.Text = Encoding.UTF8.GetString((await TreeManager.DataRepository.GetOrCreateEntryDataStream(treeDataEntry)).ToArray());
+                    await ShowPboEntry(treeDataEntry);
                     break;    
                 }
                 default: return;
             }
         }
         
-        private void ConfigEntry_Drop(object sender, DragEventArgs e) {
+        private void ConfigView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e) {
             throw new NotImplementedException();
         }
 
-        private void ShowConfigEntry(object sender, RoutedPropertyChangedEventArgs<object> e) {
-            throw new NotImplementedException();
+        private async void SearchResultsView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e) {
+            switch (e.NewValue) {
+                case SearchResult searchResult: {
+                    await ShowPboEntry(searchResult.File);
+                    break;
+                }
+            }
         }
 
-        private void ShowSearchResult(object sender, SelectionChangedEventArgs e) {
-            throw new NotImplementedException();
+        private void TextPreview_TextChanged(object sender, TextChangedEventArgs e) {
+            
         }
-
-        private void SubmitSearch(object sender, RoutedEventArgs e) {
-            throw new NotImplementedException();
-        }
-
-        private async void PreviewEdited(object sender, TextChangedEventArgs e) {
-           
-        }
-
-        private void CanSave(object sender, CanExecuteRoutedEventArgs e) =>
-            e.CanExecute = TreeManager.DataRepository.AreFilesEdited();
     }
 }

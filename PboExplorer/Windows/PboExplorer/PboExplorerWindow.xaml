@@ -85,7 +85,7 @@
                 Name="SearchButton"
                 Content="Search"
                 VerticalContentAlignment="Center"
-                Click="SubmitSearch"
+                Click="SearchButton_Click"
                 />
         </Menu>
         <Grid>
@@ -98,22 +98,20 @@
         <TabControl Grid.Column="0">
             <TabItem
                 Header="PBO Entries"
-                AllowDrop="True"
-                Drop="PboEntry_Drop">
+                AllowDrop="True">
                 <TreeView
                     Name="PboView"
                     ItemTemplate="{StaticResource EntryTreeTemplate}"
-                    SelectedItemChanged="ShowPboEntry"
+                    SelectedItemChanged="PboView_SelectedItemChanged"
                     VirtualizingStackPanel.IsVirtualizing="True">
                 </TreeView>
             </TabItem>
             <TabItem
                 Header="Config Files"
-                AllowDrop="True"
-                Drop="ConfigEntry_Drop">
+                AllowDrop="True">
                 <TreeView
                     Name="ConfigView"
-                    SelectedItemChanged="ShowConfigEntry"
+                    SelectedItemChanged="ConfigView_SelectedItemChanged"
                     VirtualizingStackPanel.IsVirtualizing="True">
 
                 </TreeView>
@@ -133,7 +131,7 @@
                      VerticalScrollBarVisibility="Visible"
                      FontFamily="Consolas"
                      Visibility="Hidden"
-                     TextChanged="PreviewEdited"
+                     TextChanged="TextPreview_TextChanged"
             />
 
             
@@ -149,11 +147,26 @@
                 <TabControl Grid.Column="1" Grid.Row="1">
                     <TabItem
                         Header="Search Results">
-                        <ListView
+                        <TreeView
                             Name="SearchResultsView"
-                            SelectionChanged="ShowSearchResult" 
+                            SelectedItemChanged="SearchResultsView_SelectedItemChanged" 
                             VirtualizingStackPanel.IsVirtualizing="True">
-                        </ListView>
+                            <TreeView.Resources>
+                                <HierarchicalDataTemplate DataType="{x:Type models:FileSearchResult}"
+                                                          ItemsSource="{Binding SearchResults}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding File.FullPath}"/>
+                                    </StackPanel>
+                                </HierarchicalDataTemplate>
+                                <DataTemplate  DataType="{x:Type models:SearchResult}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding AsString}" />
+                                        <TextBlock Text=":  " />
+                                        <TextBlock Text="{Binding LineText}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </TreeView.Resources>
+                        </TreeView>
                     </TabItem>
                     <TabItem
                         Header="PBO Metadata">

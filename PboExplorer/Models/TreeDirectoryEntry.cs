@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using PboExplorer.Utils.Interfaces;
 using PboExplorer.Utils.Managers;
 using PboExplorer.Utils.Repositories;
 
-namespace PboExplorer.Models; 
+namespace PboExplorer.Models;
 
 public class TreeDirectoryEntry : ITreeEnumerableItem {
     public string Title { get; set; }
@@ -17,18 +18,22 @@ public class TreeDirectoryEntry : ITreeEnumerableItem {
     public ITreeRoot TreeRoot { get; set; }
     public ITreeEnumerable TreeParent { get; set; }
     public IEnumerable<TreeDataEntry> Files => TreeChildren!.Where(s => s is TreeDataEntry).Cast<TreeDataEntry>();
-    public IEnumerable<TreeDirectoryEntry> Directories =>  TreeChildren!.Where(s => s is TreeDirectoryEntry).Cast<TreeDirectoryEntry>();
+    public bool CurrentlySearching { get; private set; }
+    
+    
+    public IEnumerable<TreeDirectoryEntry> Directories =>
+        TreeChildren!.Where(s => s is TreeDirectoryEntry).Cast<TreeDirectoryEntry>();
 
 
     private readonly ObservableCollection<ITreeItem> _entryList = new();
-    
-    
+
+
     public TreeDirectoryEntry(EntryTreeManager treeManager) {
         TreeManager = treeManager;
         DataRepository = treeManager.DataRepository;
         TreeRoot = treeManager.EntryRoot;
     }
-    
+
     public ICollection<ITreeItem>? TreeChildren {
         get => _entryList;
         set {
@@ -39,17 +44,28 @@ public class TreeDirectoryEntry : ITreeEnumerableItem {
         }
     }
 
+    public async Task<IEnumerable<FileSearchResult>> SearchForString(string search, bool cacheIfNotAlready) {
+        var results = new List<FileSearchResult>();
+        if (CurrentlySearching) return results;
+        CurrentlySearching = true;
+        foreach (var dataEntry in RecursivelyGrabAllFiles())
+            results.Add(await dataEntry.SearchForString(search, cacheIfNotAlready));
+        CurrentlySearching = false;
+        return results;
+    }
+
     public ITreeItem AddChild(ITreeItem child) {
         _entryList.Add(child);
-        
+
         return child;
     }
 
     public void RemoveChild(ITreeItem child) {
-        if(!_entryList.Contains(child)) return;
-        
+        if (!_entryList.Contains(child)) return;
+
         _entryList.Remove(child);
     }
 
-    public IEnumerable<TreeDataEntry> RecursivelyGrabAllFiles() => ((ITreeEnumerable)this).RecursivelyGrabAllFiles();
+    public IEnumerable<TreeDataEntry> RecursivelyGrabAllFiles() =>
+        Directories.SelectMany(d => d.RecursivelyGrabAllFiles()).Concat(Files);
 }

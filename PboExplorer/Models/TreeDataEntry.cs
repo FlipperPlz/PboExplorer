@@ -1,5 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using BisUtils.PBO.Entries;
+using PboExplorer.Utils.Extensions;
 using PboExplorer.Utils.Interfaces;
 using PboExplorer.Utils.Managers;
 using PboExplorer.Utils.Repositories;
@@ -28,4 +34,28 @@ public class TreeDataEntry : ITreeItem {
     public ulong PackedSize => PboDataEntry.PackedSize;
     public ulong OriginalSize => PboDataEntry.OriginalSize;
     public ulong Timestamp => PboDataEntry.TimeStamp;
+
+    public async Task<FileSearchResult> SearchForString(string search, bool cacheIfNotAlready) {
+        var searchResults = new List<SearchResult>();
+        MemoryStream? stream = null;
+        var dispose = false;
+        if (cacheIfNotAlready || DataRepository.IsCached(this))
+            stream = await DataRepository.GetOrCreateEntryDataStream(this);
+        if (stream is null) {
+            stream = new MemoryStream(PboDataEntry.EntryData);
+            dispose = true;
+        }
+
+        using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: !dispose);
+        var line = await reader.ReadLineAsync();
+        var lineNumber = 1;
+        while (line is not null) {
+            var indexOfSearch = line.IndexOf(search, StringComparison.Ordinal);
+            if (indexOfSearch > -1) searchResults.Add(new SearchResult( lineNumber, indexOfSearch, (string.Join(string.Empty, line.Skip(indexOfSearch))).Truncate(25), this));
+            lineNumber++;
+            line = await reader.ReadLineAsync();
+        }
+
+        return new FileSearchResult(this, searchResults);
+    }
 }
