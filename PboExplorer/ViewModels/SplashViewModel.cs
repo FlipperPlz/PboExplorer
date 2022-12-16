@@ -83,18 +83,15 @@ internal class SplashViewModel : INotifyPropertyChanged
 
     private bool CanMovePinnedMruItemUp(object p)
     {
-        if (p is IMRUEntryViewModel == false)
-            return false;
-
-        if ((p as IMRUEntryViewModel)?.IsPinned == 0)  //Make sure it is pinned
-            return false;
-
+        if (p is not IMRUEntryViewModel ||
+           (p as IMRUEntryViewModel)?.IsPinned == 0) //Make sure it is pinned
+           return false;
         return true;
     }
 
     private void MovePinnedMruItemUp(object p)
     {
-        if (p is IMRUEntryViewModel == false)
+        if (p is not IMRUEntryViewModel)
             return;
 
         var param = p as IMRUEntryViewModel;
@@ -104,10 +101,8 @@ internal class SplashViewModel : INotifyPropertyChanged
 
     private bool CanMovePinnedMruItemDown(object p)
     {
-        if (p is IMRUEntryViewModel == false)
-            return false;
-
-        if ((p as IMRUEntryViewModel)?.IsPinned == 0)  //Make sure it is pinned
+        if (p is not IMRUEntryViewModel ||
+           (p as IMRUEntryViewModel)?.IsPinned == 0) //Make sure it is pinned
             return false;
 
         return true;
@@ -115,12 +110,10 @@ internal class SplashViewModel : INotifyPropertyChanged
 
     private void MovePinnedMruItemDown(object p)
     {
-        if (p is IMRUEntryViewModel == false)
+        if (p is not IMRUEntryViewModel params)
             return;
 
-        var param = p as IMRUEntryViewModel;
-
-        MRUFileList.MovePinnedEntry(MoveMRUItem.Down, param);
+        MRUFileList.MovePinnedEntry(MoveMRUItem.Down, params);
     }
 
     private void CreateNewPBO()
