@@ -28,7 +28,7 @@ jobs:
         shell: pwsh
         run: |
           packages\clowd.squirrel\2.9.42\tools\Squirrel.exe `
-          Squirrel github-down --repoUrl "https://github.com/FlipperPlz/PboExplorer"
+          github-down --repoUrl "https://github.com/FlipperPlz/PboExplorer"
 
       - name: Publish
         shell: pwsh
