@@ -27,8 +27,8 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
-          packages\clowd.squirrel\2.9.42\tools\Squirrel.exe `
-          github-down --repoUrl "https://github.com/FlipperPlz/PboExplorer"
+          packages\clowd.squirrel\2.9.42\tools\Squirrel.exe github-down`
+          --repoUrl "https://github.com/FlipperPlz/PboExplorer"
 
       - name: Publish
         shell: pwsh
