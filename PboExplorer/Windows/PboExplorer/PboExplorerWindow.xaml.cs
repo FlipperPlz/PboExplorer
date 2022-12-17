@@ -1,5 +1,7 @@
 ﻿using System;
-using System.IO;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -7,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using BisUtils.PBO;
 using PboExplorer.Models;
+using PboExplorer.Utils.Interfaces;
 using PboExplorer.Utils.Managers;
 
 namespace PboExplorer.Windows.PboExplorer
@@ -16,11 +19,16 @@ namespace PboExplorer.Windows.PboExplorer
     /// </summary>
     public partial class PboExplorerWindow {
         private readonly EntryTreeManager TreeManager;
-        
+        private readonly ObservableCollection<IDocument> _documents = new();
+
         public PboExplorerWindow(PboFile pboFile) {
             InitializeComponent();
             TreeManager = new EntryTreeManager(pboFile);
             PboView.ItemsSource = TreeManager.EntryRoot.TreeChildren;
+
+            _documents.CollectionChanged += OnDocumentsCollectionChanged;
+            _documents.Add(new AboutEntry());
+            DockManager.DocumentsSource =_documents;
         }
 
         private void SaveAs(object sender, RoutedEventArgs e) {
@@ -58,7 +66,7 @@ namespace PboExplorer.Windows.PboExplorer
         private async void PromptEntrySave() {
             if (TreeManager.SelectedEntry is null) return;
             var dataStream = await TreeManager.GetCurrentEntryData();
-            dataStream.SyncFromStream(new MemoryStream(Encoding.UTF8.GetBytes(TextPreview.Text)));
+            //dataStream.SyncFromStream(new MemoryStream(Encoding.UTF8.GetBytes(TextPreview.Text)));
             if (!dataStream.IsEdited()) return;
             switch(MessageBox.Show("It looks like you've edited this entry, would you like to save it?.\n" +
                                    "Selecting Yes will save the edits of this entry to the corresponding PBO file.\n" +
@@ -81,8 +89,10 @@ namespace PboExplorer.Windows.PboExplorer
         private async Task ShowPboEntry(TreeDataEntry treeDataEntry) {
             PromptEntrySave();
             TreeManager.SelectedEntry = treeDataEntry;
-            TextPreview.Visibility = Visibility.Visible;
-            TextPreview.Text = Encoding.UTF8.GetString((await TreeManager.DataRepository.GetOrCreateEntryDataStream(treeDataEntry)).ToArray());
+
+            var text = Encoding.UTF8.GetString((await TreeManager.DataRepository.GetOrCreateEntryDataStream(treeDataEntry)).ToArray());
+            var doc = new TextEntry(treeDataEntry ,text);
+            _documents.Add(doc);
         }
 
         private void CanSave(object sender, CanExecuteRoutedEventArgs e) =>
@@ -124,6 +134,33 @@ namespace PboExplorer.Windows.PboExplorer
 
         private void TextPreview_TextChanged(object sender, TextChangedEventArgs e) {
             
+        }
+
+        private void OnDocumentsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (var doc in e.NewItems?.Cast<IDocument>())
+                    {
+                        doc.CloseRequested += OnDocumentCloseRequested;
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (var doc in e.OldItems?.Cast<IDocument>())
+                    {
+                        doc.CloseRequested -= OnDocumentCloseRequested;
+                    }
+                    break;
+            }
+        }
+
+        private void OnDocumentCloseRequested(object? sender, EventArgs e)
+        {
+            if (sender is IDocument doc)
+            {
+                _documents.Remove(doc);
+            }
         }
     }
 }

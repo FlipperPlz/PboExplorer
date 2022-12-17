@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dock="https://github.com/Dirkster99/AvalonDock"
+        xmlns:local="clr-namespace:PboExplorer.Windows.PboExplorer"
         xmlns:models="clr-namespace:PboExplorer.Models"
         xmlns:utils="clr-namespace:PboExplorer.Utils"
         xmlns:aboutViews="clr-namespace:PboExplorer.Windows.PboExplorer.Views.About"
@@ -13,20 +15,20 @@
     <Window.CommandBindings>
         <CommandBinding Command="Save" CanExecute="CanSave" Executed="Save"/>
     </Window.CommandBindings>
-    
+
     <Window.InputBindings>
         <KeyBinding Command="Save" Modifiers="Control" Key="S"/>
     </Window.InputBindings>
-    
+
     <Window.Resources>
         <HierarchicalDataTemplate x:Key="EntryTreeTemplate"
             DataType="{x:Type interfaces:ITreeEnumerableItem}"
             ItemsSource="{Binding TreeChildren}">
             <StackPanel Orientation="Horizontal">
-                    <TextBlock 
+                <TextBlock 
                         Text="{Binding Title}" 
                         DockPanel.Dock="Right"/>
-                    <TextBlock
+                <TextBlock
                         Name="EditedText"
                         Visibility="Hidden"
                         Margin="5 0 0 0"
@@ -65,11 +67,11 @@
                     Name="AddEntry"/>
             </MenuItem>
             <MenuItem Header="_Options">
-                
+
             </MenuItem>
-            
+
             <Separator></Separator>
-            
+
             <TextBox
                 Name="SearchBox"
                 Tag="Search"
@@ -88,143 +90,143 @@
                 Click="SearchButton_Click"
                 />
         </Menu>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1"/>
-                <ColumnDefinition Width="2*" />
-            </Grid.ColumnDefinitions>
-        </Grid>
 
-        <TabControl Grid.Column="0">
-            <TabItem
-                Header="PBO Entries"
-                AllowDrop="True">
-                <TreeView
-                    Name="PboView"
-                    ItemTemplate="{StaticResource EntryTreeTemplate}"
-                    SelectedItemChanged="PboView_SelectedItemChanged"
-                    VirtualizingStackPanel.IsVirtualizing="True">
-                </TreeView>
-            </TabItem>
-            <TabItem
-                Header="Config Files"
-                AllowDrop="True">
-                <TreeView
-                    Name="ConfigView"
-                    SelectedItemChanged="ConfigView_SelectedItemChanged"
-                    VirtualizingStackPanel.IsVirtualizing="True">
-
-                </TreeView>
-            </TabItem>
-        </TabControl>
-
-
-        <Grid Grid.Column="2" Margin="5 0 0 0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="300" />
-                <RowDefinition />
-            </Grid.RowDefinitions>
-
-            <TextBox Name="TextPreview"
-                     TextWrapping="Wrap"
-                     AcceptsReturn="True"
-                     VerticalScrollBarVisibility="Visible"
-                     FontFamily="Consolas"
-                     Visibility="Hidden"
-                     TextChanged="TextPreview_TextChanged"
-            />
-
-            
-
-            <GridSplitter Grid.Row="1" 
-                      HorizontalAlignment="Stretch" 
-                      VerticalAlignment="Top"
-                      ResizeDirection="Auto"
-                      Height="5"/>
-
-            
-            <Grid Background="LightGray" Grid.Row="1" MinHeight="5" Margin="0 5 0 5">
-                <TabControl Grid.Column="1" Grid.Row="1">
-                    <TabItem
-                        Header="Search Results">
-                        <TreeView
-                            Name="SearchResultsView"
-                            SelectedItemChanged="SearchResultsView_SelectedItemChanged" 
-                            VirtualizingStackPanel.IsVirtualizing="True">
-                            <TreeView.Resources>
-                                <HierarchicalDataTemplate DataType="{x:Type models:FileSearchResult}"
+        <dock:DockingManager x:Name="DockManager"
+            AllowMixedOrientation="True"
+            AutoWindowSizeWhenOpened="True"
+            IsVirtualizingAnchorable="True"
+            IsVirtualizingDocument="True">
+            <dock:DockingManager.LayoutItemTemplateSelector>
+                <local:PanesTemplateSelector>
+                    <local:PanesTemplateSelector.AboutViewTemplate>
+                        <DataTemplate>
+                            <aboutViews:AboutView/>
+                        </DataTemplate>
+                    </local:PanesTemplateSelector.AboutViewTemplate>
+                    <local:PanesTemplateSelector.TextViewTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" 
+                                     TextWrapping="Wrap"
+                                     AcceptsReturn="True"
+                                     VerticalScrollBarVisibility="Auto"
+                                     FontFamily="Consolas"/>
+                        </DataTemplate>
+                    </local:PanesTemplateSelector.TextViewTemplate>
+                </local:PanesTemplateSelector>
+            </dock:DockingManager.LayoutItemTemplateSelector>
+            <dock:DockingManager.LayoutItemContainerStyleSelector>
+                <local:PanesStyleSelector>
+                    <local:PanesStyleSelector.DocumentStyle>
+                        <Style TargetType="{x:Type LayoutItem}">
+                            <Setter Property="Title" Value="{Binding Model.Title}" />
+                            <Setter Property="CloseCommand" Value="{Binding Model.CloseCommand}" />
+                        </Style>
+                    </local:PanesStyleSelector.DocumentStyle>
+                </local:PanesStyleSelector>
+            </dock:DockingManager.LayoutItemContainerStyleSelector>
+            <dock:LayoutRoot>
+                <dock:LayoutRoot.LeftSide>
+                    <dock:LayoutAnchorSide>
+                        <dock:LayoutAnchorGroup>
+                            <LayoutAnchorable Title="PBO Entries" CanClose="False" CanHide="False">
+                                <TreeView Name="PboView" 
+                                      ItemTemplate="{StaticResource EntryTreeTemplate}"
+                                      SelectedItemChanged="PboView_SelectedItemChanged"
+                                      VirtualizingStackPanel.IsVirtualizing="True"/>
+                            </LayoutAnchorable>
+                            <LayoutAnchorable Title="Config Files" CanClose="False" CanHide="False">
+                                <TreeView Name="ConfigView" 
+                                      SelectedItemChanged="ConfigView_SelectedItemChanged" 
+                                      VirtualizingStackPanel.IsVirtualizing="True"/>
+                            </LayoutAnchorable>
+                        </dock:LayoutAnchorGroup>
+                    </dock:LayoutAnchorSide>
+                </dock:LayoutRoot.LeftSide>
+                
+                <dock:LayoutPanel Orientation="Vertical">
+                    <dock:LayoutDocumentPaneGroup>
+                        <dock:LayoutDocumentPane x:Name="LayoutDocumentPane"/>
+                    </dock:LayoutDocumentPaneGroup>
+                    <dock:LayoutAnchorablePane>
+                        <dock:LayoutAnchorable Title="Search Results" CanClose="False" CanHide="False">
+                                <TreeView Name="SearchResultsView" 
+                                          SelectedItemChanged="SearchResultsView_SelectedItemChanged" 
+                                          VirtualizingStackPanel.IsVirtualizing="True">
+                                    <TreeView.Resources>
+                                        <HierarchicalDataTemplate DataType="{x:Type models:FileSearchResult}"
                                                           ItemsSource="{Binding SearchResults}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding File.FullPath}"/>
-                                    </StackPanel>
-                                </HierarchicalDataTemplate>
-                                <DataTemplate  DataType="{x:Type models:SearchResult}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding AsString}" />
-                                        <TextBlock Text=":  " />
-                                        <TextBlock Text="{Binding LineText}" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </TreeView.Resources>
-                        </TreeView>
-                    </TabItem>
-                    <TabItem
-                        Header="PBO Metadata">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="200" />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
-                            <DataGrid Name="EntryInfoGrid" IsReadOnly="True" AutoGenerateColumns="False" Grid.Row="0">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn 
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding File.FullPath}"/>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+                                        <DataTemplate  DataType="{x:Type models:SearchResult}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding AsString}" />
+                                                <TextBlock Text=":  " />
+                                                <TextBlock Text="{Binding LineText}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </TreeView.Resources>
+                                </TreeView>
+                            </dock:LayoutAnchorable>
+                            <dock:LayoutAnchorable Title="PBO Metadata" CanClose="False" CanHide="False">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="200" />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <DataGrid Name="EntryInfoGrid" IsReadOnly="True" AutoGenerateColumns="False" Grid.Row="0">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn 
                                         Header="Property" 
                                         Binding="{Binding Name}" 
                                         Width="1*">
-                                       
-                                    </DataGridTextColumn>
-                                    <DataGridTextColumn 
+
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn 
                                         Header="Value" 
                                         Binding="{Binding Value}" 
                                         Width="3*">
-                                        
-                                    </DataGridTextColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Grid>
-                    </TabItem>
-                    <TabItem
-                        Header="Entry Information">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="200" />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
-                            <DataGrid Name="EntryInformationGrid" IsReadOnly="True" AutoGenerateColumns="False" Grid.Row="0">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn 
+
+                                            </DataGridTextColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </dock:LayoutAnchorable>
+                            <dock:LayoutAnchorable Title="Entry Information" CanClose="False" CanHide="False">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="200" />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <DataGrid Name="EntryInformationGrid" IsReadOnly="True" AutoGenerateColumns="False" Grid.Row="0">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn 
                                         Header="Key" 
                                         Binding="{Binding Key}" 
                                         Width="1*">
-                                    </DataGridTextColumn>
-                                    <DataGridTextColumn 
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn 
                                         Header="Value" 
                                         Binding="{Binding Value}" 
                                         Width="3*">
-                                        
-                                    </DataGridTextColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Grid>
-                        
-                    </TabItem>
-                    <TabItem  Header="About Program"
-                              ScrollViewer.VerticalScrollBarVisibility="Visible">
-                        <aboutViews:AboutView/>
-                    </TabItem>
-                </TabControl>
 
-            </Grid>
-        </Grid>
+                                            </DataGridTextColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </dock:LayoutAnchorable>
+                    </dock:LayoutAnchorablePane>
+                </dock:LayoutPanel>
+
+                <dock:LayoutRoot.BottomSide>
+                    <dock:LayoutAnchorSide>
+                        <dock:LayoutAnchorGroup>
+                            
+                        </dock:LayoutAnchorGroup>
+                    </dock:LayoutAnchorSide>
+                </dock:LayoutRoot.BottomSide>
+            </dock:LayoutRoot>
+        </dock:DockingManager>
     </DockPanel>
 </Window>
