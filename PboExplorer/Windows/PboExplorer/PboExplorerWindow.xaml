@@ -131,8 +131,13 @@
                         <LayoutAnchorable Title="PBO Entries" CanClose="False" CanHide="False">
                             <TreeView Name="PboView" 
                                       ItemTemplate="{StaticResource EntryTreeTemplate}"
-                                      SelectedItemChanged="PboView_SelectedItemChanged"
-                                      VirtualizingStackPanel.IsVirtualizing="True"/>
+                                      VirtualizingStackPanel.IsVirtualizing="True">
+                                <TreeView.ItemContainerStyle>
+                                    <Style TargetType="TreeViewItem">
+                                        <EventSetter Event="MouseDoubleClick" Handler="OnViewPboEntry"/>
+                                    </Style>
+                                </TreeView.ItemContainerStyle>
+                            </TreeView>
                         </LayoutAnchorable>
                         <LayoutAnchorable Title="Config Files" CanClose="False" CanHide="False">
                             <TreeView Name="ConfigView" 
@@ -149,8 +154,12 @@
                         <dock:LayoutAnchorablePane DockHeight="100">
                             <dock:LayoutAnchorable Title="Search Results" CanClose="False" CanHide="False">
                                 <TreeView Name="SearchResultsView" 
-                                          SelectedItemChanged="SearchResultsView_SelectedItemChanged" 
                                           VirtualizingStackPanel.IsVirtualizing="True">
+                                    <TreeView.ItemContainerStyle>
+                                        <Style TargetType="TreeViewItem">
+                                            <EventSetter Event="MouseDoubleClick" Handler="OnViewSearchResult"/>
+                                        </Style>
+                                    </TreeView.ItemContainerStyle>
                                     <TreeView.Resources>
                                         <HierarchicalDataTemplate DataType="{x:Type models:FileSearchResult}"
                                                           ItemsSource="{Binding SearchResults}">

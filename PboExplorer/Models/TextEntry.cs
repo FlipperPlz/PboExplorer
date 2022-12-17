@@ -122,4 +122,7 @@ public class TextEntry : INotifyPropertyChanged, IDocument
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
+
+    public bool IsDocumentFor(TreeDataEntry entry) 
+        => entry == _dataEntry;
 }

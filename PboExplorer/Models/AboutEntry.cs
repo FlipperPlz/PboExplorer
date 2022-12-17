@@ -18,4 +18,6 @@ public class AboutEntry : IDocument
             CloseRequested?.Invoke(this, EventArgs.Empty)
         );
     }
+
+    public bool IsDocumentFor(TreeDataEntry entry) => false;
 }

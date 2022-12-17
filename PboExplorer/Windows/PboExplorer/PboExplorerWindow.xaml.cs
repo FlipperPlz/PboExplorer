@@ -63,12 +63,19 @@ namespace PboExplorer.Windows.PboExplorer
             throw new NotImplementedException();
         }
         
+        //TODO: Bring focus to new tab
         private async Task ShowPboEntry(TreeDataEntry treeDataEntry) {
             TreeManager.SelectedEntry = treeDataEntry;
+            var opened = _documents.Where(doc => doc.IsDocumentFor(treeDataEntry));
 
-            var text = Encoding.UTF8.GetString((await TreeManager.DataRepository.GetOrCreateEntryDataStream(treeDataEntry)).ToArray());
-            var doc = new TextEntry(treeDataEntry ,text);
-            _documents.Add(doc);
+            if (!opened.Any()) {
+                var text = Encoding.UTF8.GetString((await TreeManager.DataRepository.GetOrCreateEntryDataStream(treeDataEntry)).ToArray());
+                var doc = new TextEntry(treeDataEntry ,text);
+                _documents.Add(doc);
+            }
+            else {
+                //TODO: Bring focus to opened file tab
+            }
         }
 
         private void CanSave(object sender, CanExecuteRoutedEventArgs e) =>
@@ -85,31 +92,28 @@ namespace PboExplorer.Windows.PboExplorer
             SearchButton.IsEnabled = true;
         }
 
-        private async void PboView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e) {
-            switch (e.NewValue) {
-                case TreeDataEntry treeDataEntry: {
+        private async void OnViewPboEntry(object sender, MouseButtonEventArgs e) {
+            var fe = sender as FrameworkElement;
+            switch (fe?.DataContext) {
+                case TreeDataEntry treeDataEntry:
                     await ShowPboEntry(treeDataEntry);
-                    break;    
-                }
+                    break;
                 default: return;
             }
         }
-        
+
+        //TODO: Consider handling the double click event
         private void ConfigView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e) {
             throw new NotImplementedException();
         }
 
-        private async void SearchResultsView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e) {
-            switch (e.NewValue) {
-                case SearchResult searchResult: {
+        private async void OnViewSearchResult(object sender, MouseButtonEventArgs e) {
+            var fe = sender as FrameworkElement;
+            switch (fe?.DataContext){
+                case SearchResult searchResult:
                     await ShowPboEntry(searchResult.File);
                     break;
-                }
             }
-        }
-
-        private void TextPreview_TextChanged(object sender, TextChangedEventArgs e) {
-            
         }
 
         private void OnDocumentsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
