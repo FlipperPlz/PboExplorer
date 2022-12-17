@@ -62,32 +62,8 @@ namespace PboExplorer.Windows.PboExplorer
         private void AddEntryWizard(object sender, RoutedEventArgs e) {
             throw new NotImplementedException();
         }
-
-        private async void PromptEntrySave() {
-            if (TreeManager.SelectedEntry is null) return;
-            var dataStream = await TreeManager.GetCurrentEntryData();
-            //dataStream.SyncFromStream(new MemoryStream(Encoding.UTF8.GetBytes(TextPreview.Text)));
-            if (!dataStream.IsEdited()) return;
-            switch(MessageBox.Show("It looks like you've edited this entry, would you like to save it?.\n" +
-                                   "Selecting Yes will save the edits of this entry to the corresponding PBO file.\n" +
-                                   "Selecting No will save the edits of this entry to cache for later a later sync/edit.\n" +
-                                   "Selecting Cancel will revert all changes made.", "PBOExplorer", MessageBoxButton.YesNoCancel)) {
-                case MessageBoxResult.Yes:
-                    dataStream.SyncToPBO();
-                    break;
-                case MessageBoxResult.No: break;
-                case MessageBoxResult.None:
-                case MessageBoxResult.OK:
-                case MessageBoxResult.Cancel:
-                default:
-                    dataStream.SyncFromPbo();
-                    break;
-            }
-        }
-        
         
         private async Task ShowPboEntry(TreeDataEntry treeDataEntry) {
-            PromptEntrySave();
             TreeManager.SelectedEntry = treeDataEntry;
 
             var text = Encoding.UTF8.GetString((await TreeManager.DataRepository.GetOrCreateEntryDataStream(treeDataEntry)).ToArray());
