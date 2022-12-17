@@ -6,7 +6,7 @@
         xmlns:dock="https://github.com/Dirkster99/AvalonDock"
         xmlns:local="clr-namespace:PboExplorer.Windows.PboExplorer"
         xmlns:models="clr-namespace:PboExplorer.Models"
-        xmlns:utils="clr-namespace:PboExplorer.Utils"
+        xmlns:converters="clr-namespace:PboExplorer.Utils.Converters"
         xmlns:aboutViews="clr-namespace:PboExplorer.Windows.PboExplorer.Views.About"
         xmlns:interfaces="clr-namespace:PboExplorer.Utils.Interfaces"
         mc:Ignorable="d"
@@ -92,6 +92,8 @@
         </Menu>
 
         <dock:DockingManager x:Name="DockManager"
+            ActiveContent="{Binding Path=ActiveDocument, RelativeSource={RelativeSource Mode=FindAncestor,
+                                    AncestorType=Window}, Mode=TwoWay, Converter={converters:ActiveDocumentConverter}}"
             AllowMixedOrientation="True"
             AutoWindowSizeWhenOpened="True"
             IsVirtualizingAnchorable="True"
@@ -148,7 +150,7 @@
 
                     <dock:LayoutPanel Orientation="Vertical">
                         <dock:LayoutDocumentPaneGroup>
-                            <dock:LayoutDocumentPane x:Name="LayoutDocumentPane"/>
+                            <dock:LayoutDocumentPane x:Name="LayoutDocumentPane" />
                         </dock:LayoutDocumentPaneGroup>
 
                         <dock:LayoutAnchorablePane DockHeight="100">

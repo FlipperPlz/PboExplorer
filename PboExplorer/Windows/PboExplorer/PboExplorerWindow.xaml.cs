@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,9 +18,21 @@ namespace PboExplorer.Windows.PboExplorer
     /// <summary>
     /// Interaction logic for PboExplorerWindow.xaml
     /// </summary>
-    public partial class PboExplorerWindow {
+    //TODO: Remove INotifyPropertyChanged, for demonstration purposes only
+    public partial class PboExplorerWindow: INotifyPropertyChanged {
         private readonly EntryTreeManager TreeManager;
         private readonly ObservableCollection<IDocument> _documents = new();
+        private IDocument? _activeDocument;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public IDocument? ActiveDocument { 
+            get => _activeDocument;
+            set {
+                _activeDocument= value;
+                PropertyChanged?.Invoke(this, new(nameof(ActiveDocument)));
+            }
+        }
 
         public PboExplorerWindow(PboFile pboFile) {
             InitializeComponent();
@@ -63,7 +76,6 @@ namespace PboExplorer.Windows.PboExplorer
             throw new NotImplementedException();
         }
         
-        //TODO: Bring focus to new tab
         private async Task ShowPboEntry(TreeDataEntry treeDataEntry) {
             TreeManager.SelectedEntry = treeDataEntry;
             var opened = _documents.Where(doc => doc.IsDocumentFor(treeDataEntry));
@@ -72,9 +84,10 @@ namespace PboExplorer.Windows.PboExplorer
                 var text = Encoding.UTF8.GetString((await TreeManager.DataRepository.GetOrCreateEntryDataStream(treeDataEntry)).ToArray());
                 var doc = new TextEntry(treeDataEntry ,text);
                 _documents.Add(doc);
+                ActiveDocument = doc;
             }
             else {
-                //TODO: Bring focus to opened file tab
+                ActiveDocument = opened.FirstOrDefault();
             }
         }
 
