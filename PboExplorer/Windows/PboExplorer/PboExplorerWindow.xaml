@@ -125,30 +125,29 @@
                 </local:PanesStyleSelector>
             </dock:DockingManager.LayoutItemContainerStyleSelector>
             <dock:LayoutRoot>
-                <dock:LayoutRoot.LeftSide>
-                    <dock:LayoutAnchorSide>
-                        <dock:LayoutAnchorGroup>
-                            <LayoutAnchorable Title="PBO Entries" CanClose="False" CanHide="False">
-                                <TreeView Name="PboView" 
+                <dock:LayoutPanel Orientation="Horizontal">
+
+                    <dock:LayoutAnchorablePane DockMinWidth="200">
+                        <LayoutAnchorable Title="PBO Entries" CanClose="False" CanHide="False">
+                            <TreeView Name="PboView" 
                                       ItemTemplate="{StaticResource EntryTreeTemplate}"
                                       SelectedItemChanged="PboView_SelectedItemChanged"
                                       VirtualizingStackPanel.IsVirtualizing="True"/>
-                            </LayoutAnchorable>
-                            <LayoutAnchorable Title="Config Files" CanClose="False" CanHide="False">
-                                <TreeView Name="ConfigView" 
+                        </LayoutAnchorable>
+                        <LayoutAnchorable Title="Config Files" CanClose="False" CanHide="False">
+                            <TreeView Name="ConfigView" 
                                       SelectedItemChanged="ConfigView_SelectedItemChanged" 
                                       VirtualizingStackPanel.IsVirtualizing="True"/>
-                            </LayoutAnchorable>
-                        </dock:LayoutAnchorGroup>
-                    </dock:LayoutAnchorSide>
-                </dock:LayoutRoot.LeftSide>
-                
-                <dock:LayoutPanel Orientation="Vertical">
-                    <dock:LayoutDocumentPaneGroup>
-                        <dock:LayoutDocumentPane x:Name="LayoutDocumentPane"/>
-                    </dock:LayoutDocumentPaneGroup>
-                    <dock:LayoutAnchorablePane>
-                        <dock:LayoutAnchorable Title="Search Results" CanClose="False" CanHide="False">
+                        </LayoutAnchorable>
+                    </dock:LayoutAnchorablePane>
+
+                    <dock:LayoutPanel Orientation="Vertical">
+                        <dock:LayoutDocumentPaneGroup>
+                            <dock:LayoutDocumentPane x:Name="LayoutDocumentPane"/>
+                        </dock:LayoutDocumentPaneGroup>
+
+                        <dock:LayoutAnchorablePane DockHeight="100">
+                            <dock:LayoutAnchorable Title="Search Results" CanClose="False" CanHide="False">
                                 <TreeView Name="SearchResultsView" 
                                           SelectedItemChanged="SearchResultsView_SelectedItemChanged" 
                                           VirtualizingStackPanel.IsVirtualizing="True">
@@ -216,16 +215,9 @@
                                     </DataGrid>
                                 </Grid>
                             </dock:LayoutAnchorable>
-                    </dock:LayoutAnchorablePane>
+                        </dock:LayoutAnchorablePane>
+                    </dock:LayoutPanel>
                 </dock:LayoutPanel>
-
-                <dock:LayoutRoot.BottomSide>
-                    <dock:LayoutAnchorSide>
-                        <dock:LayoutAnchorGroup>
-                            
-                        </dock:LayoutAnchorGroup>
-                    </dock:LayoutAnchorSide>
-                </dock:LayoutRoot.BottomSide>
             </dock:LayoutRoot>
         </dock:DockingManager>
     </DockPanel>

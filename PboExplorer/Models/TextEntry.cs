@@ -66,7 +66,7 @@ public class TextEntry : INotifyPropertyChanged, IDocument
     // TODO: Make async
     private void Save()
     {
-        var treeManager = _dataEntry.TreeManager
+        var treeManager = _dataEntry.TreeManager;
         treeManager.SelectedEntry = _dataEntry;
         var dataStream = treeManager.GetCurrentEntryData().Result;
         dataStream.SyncFromStream(
