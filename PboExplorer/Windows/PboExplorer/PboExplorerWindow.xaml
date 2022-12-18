@@ -7,6 +7,7 @@
         xmlns:local="clr-namespace:PboExplorer.Windows.PboExplorer"
         xmlns:models="clr-namespace:PboExplorer.Models"
         xmlns:converters="clr-namespace:PboExplorer.Utils.Converters"
+        xmlns:views="clr-namespace:PboExplorer.Windows.PboExplorer.Views"
         xmlns:aboutViews="clr-namespace:PboExplorer.Windows.PboExplorer.Views.About"
         xmlns:interfaces="clr-namespace:PboExplorer.Utils.Interfaces"
         mc:Ignorable="d"
@@ -107,11 +108,7 @@
                     </local:PanesTemplateSelector.AboutViewTemplate>
                     <local:PanesTemplateSelector.TextViewTemplate>
                         <DataTemplate>
-                            <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" 
-                                     TextWrapping="Wrap"
-                                     AcceptsReturn="True"
-                                     VerticalScrollBarVisibility="Auto"
-                                     FontFamily="Consolas"/>
+                            <views:TextEntryView/>
                         </DataTemplate>
                     </local:PanesTemplateSelector.TextViewTemplate>
                 </local:PanesTemplateSelector>
