@@ -12,6 +12,7 @@ using BisUtils.PBO;
 using PboExplorer.Models;
 using PboExplorer.Utils.Interfaces;
 using PboExplorer.Utils.Managers;
+using PboExplorer.ViewModels;
 
 namespace PboExplorer.Windows.PboExplorer
 {
@@ -40,7 +41,7 @@ namespace PboExplorer.Windows.PboExplorer
             PboView.ItemsSource = TreeManager.EntryRoot.TreeChildren;
 
             _documents.CollectionChanged += OnDocumentsCollectionChanged;
-            _documents.Add(new AboutEntry());
+            _documents.Add(new AboutEntryViewModel());
             DockManager.DocumentsSource =_documents;
         }
 
@@ -82,7 +83,7 @@ namespace PboExplorer.Windows.PboExplorer
 
             if (!opened.Any()) {
                 var text = Encoding.UTF8.GetString((await TreeManager.DataRepository.GetOrCreateEntryDataStream(treeDataEntry)).ToArray());
-                var doc = new TextEntry(treeDataEntry ,text);
+                var doc = new TextEntryViewModel(treeDataEntry, text);
                 _documents.Add(doc);
                 ActiveDocument = doc;
             }

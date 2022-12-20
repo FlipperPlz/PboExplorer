@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 using System.Windows;
-using PboExplorer.Models;
+using PboExplorer.ViewModels;
 
 namespace PboExplorer.Windows.PboExplorer;
 
@@ -12,10 +12,10 @@ class PanesTemplateSelector : DataTemplateSelector
 
     public override DataTemplate SelectTemplate(object item, DependencyObject container)
     {
-        if (item is AboutEntry)
+        if (item is AboutEntryViewModel)
             return AboutViewTemplate;
 
-        if (item is TextEntry)
+        if (item is TextEntryViewModel)
             return TextViewTemplate;
 
         return base.SelectTemplate(item, container);

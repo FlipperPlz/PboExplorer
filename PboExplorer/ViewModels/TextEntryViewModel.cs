@@ -1,21 +1,16 @@
-﻿using System;
-using System.ComponentModel;
-using System.IO;
-using System.Runtime.CompilerServices;
+﻿using System.IO;
 using System.Text;
 using System.Windows;
-using System.Windows.Input;
-using MRULib.MRU.ViewModels.Base;
-using PboExplorer.Utils.Interfaces;
+using PboExplorer.Models;
 
-namespace PboExplorer.Models;
+namespace PboExplorer.ViewModels;
 
-public class TextEntry : INotifyPropertyChanged, IDocument
+public class TextEntryViewModel : EntryViewModel
 {
-    private readonly TreeDataEntry _dataEntry;
     private string text;
     private bool isDirty;
 
+    //TODO: Consider moving to base class
     public bool IsDirty
     {
         get => isDirty;
@@ -25,7 +20,6 @@ public class TextEntry : INotifyPropertyChanged, IDocument
             OnPropertyChanged();
         }
     }
-    public string Title { get; set; }
     public string Text
     {
         get => text;
@@ -36,38 +30,25 @@ public class TextEntry : INotifyPropertyChanged, IDocument
             IsDirty = true;
         }
     }
-    public ICommand CloseCommand { get; }
-    public ICommand SaveCommand { get; }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-    public event EventHandler? CloseRequested;
-
-    public TextEntry(TreeDataEntry dataEntry, string text)
+    public TextEntryViewModel(TreeDataEntry model, string text):base(model)
     {
-        _dataEntry = dataEntry;
-        Title = _dataEntry.Title;
-
+        Title = _model.Title;
         Text = text;
-
-        // TODO: In case of adoption MVVM framework replace MRULib's RelayCommand
-        CloseCommand = new RelayCommand<object>(_ => Close());
-        SaveCommand = new RelayCommand<object>(_ => Save());
     }
 
-    private void Close()
+    protected override void OnClose()
     {
         if (IsDirty)
         {
             PromptAndSave();
         }
-        CloseRequested?.Invoke(this, EventArgs.Empty);
     }
 
     // TODO: Make async
-    private void Save()
+    protected override void Save()
     {
-        var treeManager = _dataEntry.TreeManager;
-        treeManager.SelectedEntry = _dataEntry;
+        var treeManager = _model.TreeManager;
+        treeManager.SelectedEntry = _model;
         var dataStream = treeManager.GetCurrentEntryData().Result;
         dataStream.SyncFromStream(
             new MemoryStream(Encoding.UTF8.GetBytes(Text))
@@ -83,8 +64,8 @@ public class TextEntry : INotifyPropertyChanged, IDocument
 
     private void DiscardChanges()
     {
-        var treeManager = _dataEntry.TreeManager;
-        treeManager.SelectedEntry = _dataEntry;
+        var treeManager = _model.TreeManager;
+        treeManager.SelectedEntry = _model;
         var dataStream = treeManager.GetCurrentEntryData().Result;
         dataStream.SyncFromPbo();
     }
@@ -117,12 +98,4 @@ public class TextEntry : INotifyPropertyChanged, IDocument
                 break;
         }
     }
-
-    protected void OnPropertyChanged([CallerMemberName] string name = null!)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-    }
-
-    public bool IsDocumentFor(TreeDataEntry entry) 
-        => entry == _dataEntry;
 }

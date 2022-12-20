@@ -1,11 +1,7 @@
-﻿using PboExplorer.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows.Data;
 using System.Windows.Markup;
+using PboExplorer.ViewModels;
 
 namespace PboExplorer.Utils.Converters;
 
@@ -16,8 +12,7 @@ class ActiveDocumentConverter :MarkupExtension, IValueConverter
     public object Convert(object value, Type targetType, object parameter,
                           System.Globalization.CultureInfo culture)
     {
-        //TODO: Replace TextEntry with common base class for entry documents
-        if (value is TextEntry)
+        if (value is EntryViewModel)
             return value;
 
         return Binding.DoNothing;
@@ -26,8 +21,7 @@ class ActiveDocumentConverter :MarkupExtension, IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter,
                               System.Globalization.CultureInfo culture)
     {
-        //TODO: Replace TextEntry with common base class for entry documents
-        if (value is TextEntry)
+        if (value is EntryViewModel)
             return value;
 
         return Binding.DoNothing;
