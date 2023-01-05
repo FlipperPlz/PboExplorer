@@ -92,9 +92,8 @@
                 />
         </Menu>
 
-        <dock:DockingManager x:Name="DockManager"
-            ActiveContent="{Binding Path=ActiveDocument, RelativeSource={RelativeSource Mode=FindAncestor,
-                                    AncestorType=Window}, Mode=TwoWay, Converter={converters:ActiveDocumentConverter}}"
+        <dock:DockingManager x:Name="DockManager" DocumentsSource="{Binding Documents}"
+            ActiveContent="{Binding Path=ActiveDocument, Mode=TwoWay, Converter={converters:ActiveDocumentConverter}}"
             AllowMixedOrientation="True"
             AutoWindowSizeWhenOpened="True"
             IsVirtualizingAnchorable="True"
@@ -139,9 +138,7 @@
                             </TreeView>
                         </LayoutAnchorable>
                         <LayoutAnchorable Title="Config Files" CanClose="False" CanHide="False">
-                            <TreeView Name="ConfigView" 
-                                      SelectedItemChanged="ConfigView_SelectedItemChanged" 
-                                      VirtualizingStackPanel.IsVirtualizing="True"/>
+                            <TreeView Name="ConfigView" VirtualizingStackPanel.IsVirtualizing="True"/>
                         </LayoutAnchorable>
                     </dock:LayoutAnchorablePane>
 
