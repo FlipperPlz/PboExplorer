@@ -1,5 +1,8 @@
 ﻿using System;
-using System.IO;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -7,20 +10,39 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using BisUtils.PBO;
 using PboExplorer.Models;
+using PboExplorer.Utils.Interfaces;
 using PboExplorer.Utils.Managers;
+using PboExplorer.ViewModels;
 
 namespace PboExplorer.Windows.PboExplorer
 {
     /// <summary>
     /// Interaction logic for PboExplorerWindow.xaml
     /// </summary>
-    public partial class PboExplorerWindow {
+    //TODO: Remove INotifyPropertyChanged, for demonstration purposes only
+    public partial class PboExplorerWindow: INotifyPropertyChanged {
         private readonly EntryTreeManager TreeManager;
-        
+        private readonly ObservableCollection<IDocument> _documents = new();
+        private IDocument? _activeDocument;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public IDocument? ActiveDocument { 
+            get => _activeDocument;
+            set {
+                _activeDocument= value;
+                PropertyChanged?.Invoke(this, new(nameof(ActiveDocument)));
+            }
+        }
+
         public PboExplorerWindow(PboFile pboFile) {
             InitializeComponent();
             TreeManager = new EntryTreeManager(pboFile);
             PboView.ItemsSource = TreeManager.EntryRoot.TreeChildren;
+
+            _documents.CollectionChanged += OnDocumentsCollectionChanged;
+            _documents.Add(new AboutEntryViewModel());
+            DockManager.DocumentsSource =_documents;
         }
 
         private void SaveAs(object sender, RoutedEventArgs e) {
@@ -54,35 +76,20 @@ namespace PboExplorer.Windows.PboExplorer
         private void AddEntryWizard(object sender, RoutedEventArgs e) {
             throw new NotImplementedException();
         }
-
-        private async void PromptEntrySave() {
-            if (TreeManager.SelectedEntry is null) return;
-            var dataStream = await TreeManager.GetCurrentEntryData();
-            dataStream.SyncFromStream(new MemoryStream(Encoding.UTF8.GetBytes(TextPreview.Text)));
-            if (!dataStream.IsEdited()) return;
-            switch(MessageBox.Show("It looks like you've edited this entry, would you like to save it?.\n" +
-                                   "Selecting Yes will save the edits of this entry to the corresponding PBO file.\n" +
-                                   "Selecting No will save the edits of this entry to cache for later a later sync/edit.\n" +
-                                   "Selecting Cancel will revert all changes made.", "PBOExplorer", MessageBoxButton.YesNoCancel)) {
-                case MessageBoxResult.Yes:
-                    dataStream.SyncToPBO();
-                    break;
-                case MessageBoxResult.No: break;
-                case MessageBoxResult.None:
-                case MessageBoxResult.OK:
-                case MessageBoxResult.Cancel:
-                default:
-                    dataStream.SyncFromPbo();
-                    break;
-            }
-        }
-        
         
         private async Task ShowPboEntry(TreeDataEntry treeDataEntry) {
-            PromptEntrySave();
             TreeManager.SelectedEntry = treeDataEntry;
-            TextPreview.Visibility = Visibility.Visible;
-            TextPreview.Text = Encoding.UTF8.GetString((await TreeManager.DataRepository.GetOrCreateEntryDataStream(treeDataEntry)).ToArray());
+            var opened = _documents.Where(doc => doc.IsDocumentFor(treeDataEntry));
+
+            if (!opened.Any()) {
+                var text = Encoding.UTF8.GetString((await TreeManager.DataRepository.GetOrCreateEntryDataStream(treeDataEntry)).ToArray());
+                var doc = new TextEntryViewModel(treeDataEntry, text);
+                _documents.Add(doc);
+                ActiveDocument = doc;
+            }
+            else {
+                ActiveDocument = opened.FirstOrDefault();
+            }
         }
 
         private void CanSave(object sender, CanExecuteRoutedEventArgs e) =>
@@ -99,31 +106,55 @@ namespace PboExplorer.Windows.PboExplorer
             SearchButton.IsEnabled = true;
         }
 
-        private async void PboView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e) {
-            switch (e.NewValue) {
-                case TreeDataEntry treeDataEntry: {
+        private async void OnViewPboEntry(object sender, MouseButtonEventArgs e) {
+            var fe = sender as FrameworkElement;
+            switch (fe?.DataContext) {
+                case TreeDataEntry treeDataEntry:
                     await ShowPboEntry(treeDataEntry);
-                    break;    
-                }
+                    break;
                 default: return;
             }
         }
-        
+
+        //TODO: Consider handling the double click event
         private void ConfigView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e) {
             throw new NotImplementedException();
         }
 
-        private async void SearchResultsView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e) {
-            switch (e.NewValue) {
-                case SearchResult searchResult: {
+        private async void OnViewSearchResult(object sender, MouseButtonEventArgs e) {
+            var fe = sender as FrameworkElement;
+            switch (fe?.DataContext){
+                case SearchResult searchResult:
                     await ShowPboEntry(searchResult.File);
                     break;
-                }
             }
         }
 
-        private void TextPreview_TextChanged(object sender, TextChangedEventArgs e) {
-            
+        private void OnDocumentsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    foreach (var doc in e.NewItems?.Cast<IDocument>())
+                    {
+                        doc.CloseRequested += OnDocumentCloseRequested;
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    foreach (var doc in e.OldItems?.Cast<IDocument>())
+                    {
+                        doc.CloseRequested -= OnDocumentCloseRequested;
+                    }
+                    break;
+            }
+        }
+
+        private void OnDocumentCloseRequested(object? sender, EventArgs e)
+        {
+            if (sender is IDocument doc)
+            {
+                _documents.Remove(doc);
+            }
         }
     }
 }
