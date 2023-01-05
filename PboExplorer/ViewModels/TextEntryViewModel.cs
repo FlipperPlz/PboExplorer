@@ -2,100 +2,52 @@
 using System.Text;
 using System.Windows;
 using PboExplorer.Models;
+using PboExplorer.Utils;
 
 namespace PboExplorer.ViewModels;
 
-public class TextEntryViewModel : EntryViewModel
-{
-    private string text;
-    private bool isDirty;
-
-    //TODO: Consider moving to base class
-    public bool IsDirty
-    {
-        get => isDirty;
-        set
-        {
-            isDirty = value;
-            OnPropertyChanged();
-        }
-    }
+public class TextEntryViewModel : EntryViewModel {
+    private string _text;
+    
     public string Text
     {
-        get => text;
-        set
-        {
-            text = value;
+        get => _text;
+        set {
+            _text = value;
             OnPropertyChanged();
             IsDirty = true;
         }
     }
-    public TextEntryViewModel(TreeDataEntry model, string text):base(model)
-    {
-        Title = _model.Title;
-        Text = text;
-    }
+    
+    public TextEntryViewModel(TreeDataEntry model, string text) : base(model, model.Title) => _text = text;
 
     protected override void OnClose()
     {
-        if (IsDirty)
-        {
-            PromptAndSave();
-        }
+        if (IsDirty) PromptAndSave();
     }
 
-    // TODO: Make async
-    protected override void Save()
-    {
+    protected override void SaveToPbo() {
         var treeManager = _model.TreeManager;
         treeManager.SelectedEntry = _model;
         var dataStream = treeManager.GetCurrentEntryData().Result;
-        dataStream.SyncFromStream(
-            new MemoryStream(Encoding.UTF8.GetBytes(Text))
-        );
-        if (!dataStream.IsEdited())
-        {
-            IsDirty = false;
-            return;
-        }
+        SaveToCache(dataStream);
         dataStream.SyncToPBO();
         IsDirty = false;
     }
 
-    private void DiscardChanges()
-    {
+    protected override void SaveToCache() {
         var treeManager = _model.TreeManager;
         treeManager.SelectedEntry = _model;
         var dataStream = treeManager.GetCurrentEntryData().Result;
-        dataStream.SyncFromPbo();
+        SaveToCache(dataStream);
+    }
+    
+    private void SaveToCache(EntryDataStream entryDataStream) {
+        entryDataStream.SyncFromStream(
+            new MemoryStream(Encoding.UTF8.GetBytes(Text))
+        );
+        IsDirty = true;
     }
 
-    /// <summary>
-    /// Prompt user to save changes before closing
-    /// TODO: Refactor cancellation logic
-    /// </summary>
-    /// <returns> Continue closing or not</returns>
-    private void PromptAndSave()
-    {
-        var result = MessageBox.Show("It looks like you've edited this entry, would you like to save it?.\n" +
-                                   "Selecting Yes will save the edits of this entry to the corresponding PBO file.\n" +
-                                   "Selecting No will save the edits of this entry to cache for later a later sync/edit.\n" +
-                                   "Selecting Cancel will revert all changes made.", "PBOExplorer", MessageBoxButton.YesNoCancel);
-        switch (result)
-        {
-            case MessageBoxResult.OK:
-            case MessageBoxResult.Yes:
-                Save();
-                break;
-            case MessageBoxResult.No:
-            case MessageBoxResult.None:
-                break;
-            case MessageBoxResult.Cancel:
-                DiscardChanges();
-                break;
-            default:
-                DiscardChanges();
-                break;
-        }
-    }
+
 }
