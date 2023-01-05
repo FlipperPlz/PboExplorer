@@ -1,20 +1,22 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using BisUtils.PBO;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using MRULib;
 using MRULib.MRU.Enums;
 using MRULib.MRU.Interfaces;
 using MRULib.MRU.Models.Persist;
-using MRULib.MRU.ViewModels.Base;
 using PboExplorer.Windows.PboExplorer;
+using MRURelayCommand = MRULib.MRU.ViewModels.Base.RelayCommand<object>;
 
 namespace PboExplorer.Windows.Splash.Views.RecentFiles.ViewModels;
 
-internal class SplashViewModel : INotifyPropertyChanged
+internal class SplashViewModel
 {
     private const string _mruFile = "mru.xml";
 
@@ -29,7 +31,6 @@ internal class SplashViewModel : INotifyPropertyChanged
     public ICommand MovePinnedMruItemUpCommand { get; }
     public ICommand MovePinnedMruItemDownCommand { get; }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
     public event EventHandler? CloseRequested;
 
     public SplashViewModel()
@@ -43,39 +44,39 @@ internal class SplashViewModel : INotifyPropertyChanged
             MRUFileList = MRU_Service.Create_List();
         }
 
-        // TODO: In case of adoption MVVM framework replace MRULib's RelayCommand
-        CreatePBOCommand = new RelayCommand<object>(_ => CreateNewPBO());
-        OpenPBOCommand = new RelayCommand<object>(_ => OpenPBOFileWithDialog());
-        NavigateUriCommand = new RelayCommand<string>(OpenPBOFile);
-        ClearAllItemsCommand = new RelayCommand<object>(_ => ClearMRU());
-        RemoveItemCommand = new RelayCommand<object>((p) => RemoveMRUItem(p as IMRUEntryViewModel));
-        MovePinnedMruItemUpCommand = new RelayCommand<object>(MovePinnedMruItemUp, CanMovePinnedMruItemUp);
-        MovePinnedMruItemDownCommand = new RelayCommand<object>(MovePinnedMruItemDown, CanMovePinnedMruItemDown);
+        CreatePBOCommand = new AsyncRelayCommand(CreateNewPBO);
+        OpenPBOCommand = new AsyncRelayCommand(OpenPBOFileWithDialog);
+        NavigateUriCommand = new AsyncRelayCommand<string>(OpenPBOFile);
+        ClearAllItemsCommand = new AsyncRelayCommand(ClearMRU);
+        RemoveItemCommand = new AsyncRelayCommand<IMRUEntryViewModel>(RemoveMRUItem);
+
+        // TODO: Solve issue with CanExecute requery
+        MovePinnedMruItemUpCommand = new MRURelayCommand(MovePinnedMruItemUp, CanMovePinnedMruItemUp);
+        MovePinnedMruItemDownCommand = new MRURelayCommand(MovePinnedMruItemDown, CanMovePinnedMruItemDown);
     }
 
-    private void UpdateMRUItem(string path)
+    private async Task UpdateMRUItem(string path)
     {
         MRUFileList.UpdateEntry(path);
-        SaveMRU();
+        await SaveMRU();
     }
 
-    private void ClearMRU()
+    private async Task ClearMRU()
     {
         MRUFileList.Clear();
-        SaveMRU();
+        await SaveMRU();
     }
 
-    private void RemoveMRUItem(IMRUEntryViewModel? entry)
+    private async Task RemoveMRUItem(IMRUEntryViewModel? entry)
     {
         MRUFileList.RemoveEntry(entry);
-        SaveMRU();
+        await SaveMRU();
     }
 
-    // TODO: Make method async in case of adoption AsyncRelayCommand
-    private void SaveMRU()
+    private async Task SaveMRU()
     {
         string persistPath = Path.Combine(_mruFile);
-        MRUEntrySerializer.Save(persistPath, MRUFileList);
+        await MRUEntrySerializer.SaveAsync(persistPath, MRUFileList);
     }
 
     private bool CanMovePinnedMruItemUp(object p) {
@@ -103,7 +104,7 @@ internal class SplashViewModel : INotifyPropertyChanged
         MRUFileList.MovePinnedEntry(MoveMRUItem.Down, parameters);
     }
 
-    private void CreateNewPBO()
+    private async Task CreateNewPBO()
     {
         var dlg = new OpenFileDialog
         {
@@ -113,11 +114,11 @@ internal class SplashViewModel : INotifyPropertyChanged
         };
         if (dlg.ShowDialog() != true) return;
 
-        UpdateMRUItem(dlg.FileName);
+        await UpdateMRUItem(dlg.FileName);
         NavigateToPboExplorerWindow(new PboFile(dlg.FileName, PboFileOption.Create));
     }
 
-    private void OpenPBOFile(string path)
+    private async Task OpenPBOFile(string path)
     {
 
         if (string.IsNullOrWhiteSpace(path))
@@ -125,7 +126,7 @@ internal class SplashViewModel : INotifyPropertyChanged
 
         try
         {
-            UpdateMRUItem(path);
+            await UpdateMRUItem(path);
             NavigateToPboExplorerWindow(new PboFile(path));
         }
         catch (Exception exp)
@@ -135,7 +136,7 @@ internal class SplashViewModel : INotifyPropertyChanged
 
     }
     
-    private void OpenPBOFileWithDialog()
+    private async Task OpenPBOFileWithDialog()
     {
         var dlg = new OpenFileDialog
         {
@@ -145,7 +146,7 @@ internal class SplashViewModel : INotifyPropertyChanged
         };
         if (dlg.ShowDialog() != true) return;
 
-        UpdateMRUItem(dlg.FileName);
+        await UpdateMRUItem(dlg.FileName);
         NavigateToPboExplorerWindow(new PboFile(dlg.FileName));
     }
 

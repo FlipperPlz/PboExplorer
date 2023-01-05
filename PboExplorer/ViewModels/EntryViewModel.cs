@@ -1,10 +1,10 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 
-using MRULib.MRU.ViewModels.Base;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
 using PboExplorer.Models;
 using PboExplorer.Utils.Interfaces;
 
@@ -13,29 +13,15 @@ namespace PboExplorer.ViewModels;
 
 /// <summary>
 /// Base class for PBO entires view models
-/// TODO: use MVVM framework implementation for INotifyPropertyChanged
 /// </summary>
-public abstract class EntryViewModel : IDocument, INotifyPropertyChanged
+public abstract partial class EntryViewModel : ObservableObject, IDocument
 {
     protected readonly TreeDataEntry _model;
-    private string _title;
-    private bool _isDirty;
-
-    public string Title {
-        get => _title;
-        set {
-            _title = value;
-            OnPropertyChanged();
-        }
-    }
     
-    protected bool IsDirty {
-        get => _isDirty;
-        set {
-            _isDirty = value;
-            OnPropertyChanged();
-        }
-    }
+    [ObservableProperty]
+    private string _title;
+    [ObservableProperty]
+    private bool _isDirty;
     
     public ICommand CloseCommand { get; }
     public ICommand SaveCommand { get; }
@@ -47,10 +33,10 @@ public abstract class EntryViewModel : IDocument, INotifyPropertyChanged
     {
         _model = model;
         _title = title;
+        _isDirty= false;
 
-        // TODO: In case of adoption MVVM framework replace MRULib's RelayCommand
-        CloseCommand = new RelayCommand<object>(_ => Close());
-        SaveCommand = new RelayCommand<object>(_ => SaveToPbo());
+        CloseCommand = new RelayCommand(Close);
+        SaveCommand = new RelayCommand(SaveToPbo);
     }
 
     public bool IsDocumentFor(TreeDataEntry entry)
@@ -94,12 +80,4 @@ public abstract class EntryViewModel : IDocument, INotifyPropertyChanged
         CloseRequested?.Invoke(this, EventArgs.Empty);
     }
 
-    #region INotifyPropertyChanged boilerplate
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected void OnPropertyChanged([CallerMemberName] string name = null!)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-    }
-    #endregion
 }
