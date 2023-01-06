@@ -1,4 +1,8 @@
-﻿using PboExplorer.Utils.Interfaces;
+﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using PboExplorer.Messages;
+using PboExplorer.Models;
+using PboExplorer.Utils.Interfaces;
 using PboExplorer.Utils.Managers;
 using System.Collections.ObjectModel;
 
@@ -17,4 +21,12 @@ public partial class FileTreePaneViewModel : PaneViewModel
         _treeManager = treeManager;
     }
 
+    [RelayCommand]
+    public void OpenPreview(ITreeItem item)
+    {
+        if (item is TreeDataEntry entry)
+        {
+            WeakReferenceMessenger.Default.Send(new ActivateDocumentMessage(entry));
+        }
+    }
 }

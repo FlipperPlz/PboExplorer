@@ -8,14 +8,8 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <TreeView ItemsSource="{Binding Entries}" 
-                  ItemTemplate="{StaticResource EntryTreeTemplate}" 
+                  ItemTemplate="{StaticResource EntryTreeTemplate}"
                   VirtualizingStackPanel.IsVirtualizing="True">
-            <!--TODO: Implement-->
-            <!--<TreeView.ItemContainerStyle>
-                <Style TargetType="TreeViewItem">
-                    <EventSetter Event="MouseDoubleClick" Handler="OnViewPboEntry"/>
-                </Style>
-            </TreeView.ItemContainerStyle>-->
         </TreeView>
     </Grid>
 </UserControl>

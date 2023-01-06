@@ -9,9 +9,13 @@
             DataType="{x:Type interfaces:ITreeEnumerableItem}"
             ItemsSource="{Binding TreeChildren}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock 
-                        Text="{Binding Title}" 
-                        DockPanel.Dock="Right"/>
+                <TextBlock Text="{Binding Title}" 
+                        DockPanel.Dock="Right">
+                    <TextBlock.InputBindings>
+                        <MouseBinding Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.OpenPreviewCommand}"
+                                              CommandParameter="{Binding .}" MouseAction="LeftDoubleClick"/>
+                    </TextBlock.InputBindings>
+                </TextBlock>
                 <TextBlock
                         Name="EditedText"
                         Visibility="Hidden"

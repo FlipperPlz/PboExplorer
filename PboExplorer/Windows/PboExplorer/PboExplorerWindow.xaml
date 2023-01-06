@@ -11,12 +11,11 @@
         mc:Ignorable="d"
         Title="PboExplorerWindow" Height="450" Width="800">
 
-    <Window.CommandBindings>
-        <CommandBinding Command="Save" CanExecute="CanSave" Executed="Save"/>
-    </Window.CommandBindings>
-
+    <!--TODO: Fix applticatin commands-->
     <Window.InputBindings>
-        <KeyBinding Command="Save" Modifiers="Control" Key="S"/>
+        <KeyBinding Command="{Binding ExitCommand}" Modifiers="Ctrl" Key="E"/>
+        <KeyBinding Command="{Binding SaveCommand}" Modifiers="Ctrl" Key="S"/>
+        <KeyBinding Command="{Binding SaveAsCommand}" Modifiers="Ctrl+Shift" Key="S"/>
     </Window.InputBindings>
 
     <Window.Resources>
@@ -25,16 +24,12 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
-                <MenuItem 
-                    Header="_Save..."
-                    Click="Save"
-                />
-                <MenuItem 
-                    Header="_Save _as..."
-                    Click="SaveAs"/>
-                <MenuItem
-                    Header="Close"
-                    Click="Close"/>
+                <MenuItem Header="_Save..." Command="{Binding SaveCommand}"
+                          InputGestureText="Ctrl+S"/>
+                <MenuItem Header="_Save _as..." Command="{Binding SaveAsCommand}"
+                          InputGestureText="Ctrl+Shift+S"/>
+                <MenuItem Header="Close" Command="{Binding ExitCommand}"
+                          InputGestureText="Ctrl+E"/>
             </MenuItem>
             <MenuItem Header="_Edit">
                 <MenuItem 
@@ -55,25 +50,20 @@
 
             </MenuItem>
 
-            <Separator></Separator>
+            <Separator/>
 
-            <TextBox
-                Name="SearchBox"
-                Tag="Search"
+            <TextBox Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}"
                 VerticalAlignment="Center"
                 MinWidth="115"
-                Width="150"
-                />
-            <Button
-                VerticalAlignment="Stretch"
-                Margin="3"
-                MaxHeight="25"
-                MinWidth="50"
-                Name="SearchButton"
-                Content="Search"
-                VerticalContentAlignment="Center"
-                Click="SearchButton_Click"
-                />
+                Width="150"/>
+            <Button Command="{Binding SearchCommand}"
+                    CommandParameter="{Binding SearchTerm}"
+                    VerticalAlignment="Stretch"
+                    Margin="3"
+                    MaxHeight="25"
+                    MinWidth="50"
+                    Content="Search"
+                    VerticalContentAlignment="Center"/>
         </Menu>
 
         <dock:DockingManager x:Name="DockManager"
