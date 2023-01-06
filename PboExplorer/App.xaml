@@ -2,8 +2,23 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PboExplorer"
+             xmlns:interfaces="clr-namespace:PboExplorer.Utils.Interfaces"
              StartupUri="/Windows/Splash/SplashWindow.xaml">
     <Application.Resources>
-         
+        <HierarchicalDataTemplate x:Key="EntryTreeTemplate"
+            DataType="{x:Type interfaces:ITreeEnumerableItem}"
+            ItemsSource="{Binding TreeChildren}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock 
+                        Text="{Binding Title}" 
+                        DockPanel.Dock="Right"/>
+                <TextBlock
+                        Name="EditedText"
+                        Visibility="Hidden"
+                        Margin="5 0 0 0"
+                        Text="(edited)"
+                        DockPanel.Dock="Left"/>
+            </StackPanel>
+        </HierarchicalDataTemplate>
     </Application.Resources>
 </Application>

@@ -5,11 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:dock="https://github.com/Dirkster99/AvalonDock"
         xmlns:local="clr-namespace:PboExplorer.Windows.PboExplorer"
-        xmlns:models="clr-namespace:PboExplorer.Models"
         xmlns:converters="clr-namespace:PboExplorer.Utils.Converters"
         xmlns:views="clr-namespace:PboExplorer.Windows.PboExplorer.Views"
         xmlns:aboutViews="clr-namespace:PboExplorer.Windows.PboExplorer.Views.About"
-        xmlns:interfaces="clr-namespace:PboExplorer.Utils.Interfaces"
         mc:Ignorable="d"
         Title="PboExplorerWindow" Height="450" Width="800">
 
@@ -22,21 +20,7 @@
     </Window.InputBindings>
 
     <Window.Resources>
-        <HierarchicalDataTemplate x:Key="EntryTreeTemplate"
-            DataType="{x:Type interfaces:ITreeEnumerableItem}"
-            ItemsSource="{Binding TreeChildren}">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock 
-                        Text="{Binding Title}" 
-                        DockPanel.Dock="Right"/>
-                <TextBlock
-                        Name="EditedText"
-                        Visibility="Hidden"
-                        Margin="5 0 0 0"
-                        Text="(edited)"
-                        DockPanel.Dock="Left"/>
-            </StackPanel>
-        </HierarchicalDataTemplate>
+        <dock:BoolToVisibilityConverter x:Key="AvalonBoolToVisibilityConverter" />
     </Window.Resources>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -92,12 +76,19 @@
                 />
         </Menu>
 
-        <dock:DockingManager x:Name="DockManager" DocumentsSource="{Binding Documents}"
-            ActiveContent="{Binding Path=ActiveDocument, Mode=TwoWay, Converter={converters:ActiveDocumentConverter}}"
-            AllowMixedOrientation="True"
-            AutoWindowSizeWhenOpened="True"
-            IsVirtualizingAnchorable="True"
-            IsVirtualizingDocument="True">
+        <dock:DockingManager x:Name="DockManager"
+                             ActiveContent="{Binding Path=ActiveDocument, Mode=TwoWay, Converter={converters:ActiveDocumentConverter}}"
+                             DocumentsSource="{Binding Documents}"
+                             AnchorablesSource="{Binding Panes}" 
+                             AllowMixedOrientation="True" 
+                             AutoWindowSizeWhenOpened="True" 
+                             IsVirtualizingAnchorable="True" 
+                             IsVirtualizingDocument="True">
+            <dock:DockingManager.LayoutUpdateStrategy>
+                <local:LayoutInitializer />
+            </dock:DockingManager.LayoutUpdateStrategy>
+            
+            <!--TODO: Refactor-->
             <dock:DockingManager.LayoutItemTemplateSelector>
                 <local:PanesTemplateSelector>
                     <local:PanesTemplateSelector.AboutViewTemplate>
@@ -110,10 +101,42 @@
                             <views:TextEntryView/>
                         </DataTemplate>
                     </local:PanesTemplateSelector.TextViewTemplate>
+                    <local:PanesTemplateSelector.FileTreePaneTemplate>
+                        <DataTemplate>
+                            <views:FileTreePaneView/>
+                        </DataTemplate>
+                    </local:PanesTemplateSelector.FileTreePaneTemplate>
+                    <local:PanesTemplateSelector.ConfigTreePaneTemplate>
+                        <DataTemplate>
+                            <views:ConfigTreePaneView/>
+                        </DataTemplate>
+                    </local:PanesTemplateSelector.ConfigTreePaneTemplate>
+                    <local:PanesTemplateSelector.SearchResultsPaneTemplate>
+                        <DataTemplate>
+                            <views:SearchResultsPaneView/>
+                        </DataTemplate>
+                    </local:PanesTemplateSelector.SearchResultsPaneTemplate>
+                    <local:PanesTemplateSelector.PboMetaDataPaneTemplate>
+                        <DataTemplate>
+                            <views:PboMetadataPaneView/>
+                        </DataTemplate>
+                    </local:PanesTemplateSelector.PboMetaDataPaneTemplate>
+                    <local:PanesTemplateSelector.EntryInformationPaneTemplate>
+                        <DataTemplate>
+                            <views:EntryInformationPaneView/>
+                        </DataTemplate>
+                    </local:PanesTemplateSelector.EntryInformationPaneTemplate>
                 </local:PanesTemplateSelector>
             </dock:DockingManager.LayoutItemTemplateSelector>
+            
             <dock:DockingManager.LayoutItemContainerStyleSelector>
                 <local:PanesStyleSelector>
+                    <local:PanesStyleSelector.PaneStyle>
+                        <Style TargetType="{x:Type dock:LayoutAnchorableItem}">
+                            <Setter Property="Title" Value="{Binding Model.Title}"/>
+                            <Setter Property="Visibility" Value="{Binding Model.IsVisible, Mode=TwoWay, Converter={StaticResource AvalonBoolToVisibilityConverter}, ConverterParameter={x:Static Visibility.Hidden}}"/>
+                        </Style>
+                    </local:PanesStyleSelector.PaneStyle>
                     <local:PanesStyleSelector.DocumentStyle>
                         <Style TargetType="{x:Type LayoutItem}">
                             <Setter Property="Title" Value="{Binding Model.Title}" />
@@ -122,105 +145,18 @@
                     </local:PanesStyleSelector.DocumentStyle>
                 </local:PanesStyleSelector>
             </dock:DockingManager.LayoutItemContainerStyleSelector>
+            
             <dock:LayoutRoot>
                 <dock:LayoutPanel Orientation="Horizontal">
 
-                    <dock:LayoutAnchorablePane DockMinWidth="200">
-                        <LayoutAnchorable Title="PBO Entries" CanClose="False" CanHide="False">
-                            <TreeView Name="PboView" 
-                                      ItemTemplate="{StaticResource EntryTreeTemplate}"
-                                      VirtualizingStackPanel.IsVirtualizing="True">
-                                <TreeView.ItemContainerStyle>
-                                    <Style TargetType="TreeViewItem">
-                                        <EventSetter Event="MouseDoubleClick" Handler="OnViewPboEntry"/>
-                                    </Style>
-                                </TreeView.ItemContainerStyle>
-                            </TreeView>
-                        </LayoutAnchorable>
-                        <LayoutAnchorable Title="Config Files" CanClose="False" CanHide="False">
-                            <TreeView Name="ConfigView" VirtualizingStackPanel.IsVirtualizing="True"/>
-                        </LayoutAnchorable>
-                    </dock:LayoutAnchorablePane>
+                    <dock:LayoutAnchorablePane Name="LeftPane" DockMinWidth="200"/>
 
                     <dock:LayoutPanel Orientation="Vertical">
                         <dock:LayoutDocumentPaneGroup>
                             <dock:LayoutDocumentPane x:Name="LayoutDocumentPane" />
                         </dock:LayoutDocumentPaneGroup>
 
-                        <dock:LayoutAnchorablePane DockHeight="100">
-                            <dock:LayoutAnchorable Title="Search Results" CanClose="False" CanHide="False">
-                                <TreeView Name="SearchResultsView" 
-                                          VirtualizingStackPanel.IsVirtualizing="True">
-                                    <TreeView.ItemContainerStyle>
-                                        <Style TargetType="TreeViewItem">
-                                            <EventSetter Event="MouseDoubleClick" Handler="OnViewSearchResult"/>
-                                        </Style>
-                                    </TreeView.ItemContainerStyle>
-                                    <TreeView.Resources>
-                                        <HierarchicalDataTemplate DataType="{x:Type models:FileSearchResult}"
-                                                          ItemsSource="{Binding SearchResults}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding File.FullPath}"/>
-                                            </StackPanel>
-                                        </HierarchicalDataTemplate>
-                                        <DataTemplate  DataType="{x:Type models:SearchResult}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding AsString}" />
-                                                <TextBlock Text=":  " />
-                                                <TextBlock Text="{Binding LineText}" />
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </TreeView.Resources>
-                                </TreeView>
-                            </dock:LayoutAnchorable>
-                            <dock:LayoutAnchorable Title="PBO Metadata" CanClose="False" CanHide="False">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="200" />
-                                        <RowDefinition />
-                                    </Grid.RowDefinitions>
-                                    <DataGrid Name="EntryInfoGrid" IsReadOnly="True" AutoGenerateColumns="False" Grid.Row="0">
-                                        <DataGrid.Columns>
-                                            <DataGridTextColumn 
-                                        Header="Property" 
-                                        Binding="{Binding Name}" 
-                                        Width="1*">
-
-                                            </DataGridTextColumn>
-                                            <DataGridTextColumn 
-                                        Header="Value" 
-                                        Binding="{Binding Value}" 
-                                        Width="3*">
-
-                                            </DataGridTextColumn>
-                                        </DataGrid.Columns>
-                                    </DataGrid>
-                                </Grid>
-                            </dock:LayoutAnchorable>
-                            <dock:LayoutAnchorable Title="Entry Information" CanClose="False" CanHide="False">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="200" />
-                                        <RowDefinition />
-                                    </Grid.RowDefinitions>
-                                    <DataGrid Name="EntryInformationGrid" IsReadOnly="True" AutoGenerateColumns="False" Grid.Row="0">
-                                        <DataGrid.Columns>
-                                            <DataGridTextColumn 
-                                        Header="Key" 
-                                        Binding="{Binding Key}" 
-                                        Width="1*">
-                                            </DataGridTextColumn>
-                                            <DataGridTextColumn 
-                                        Header="Value" 
-                                        Binding="{Binding Value}" 
-                                        Width="3*">
-
-                                            </DataGridTextColumn>
-                                        </DataGrid.Columns>
-                                    </DataGrid>
-                                </Grid>
-                            </dock:LayoutAnchorable>
-                        </dock:LayoutAnchorablePane>
+                        <dock:LayoutAnchorablePane Name="BottomPane" DockHeight="100"/>
                     </dock:LayoutPanel>
                 </dock:LayoutPanel>
             </dock:LayoutRoot>

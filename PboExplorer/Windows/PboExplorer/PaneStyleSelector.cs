@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using System.Windows;
 using PboExplorer.Utils.Interfaces;
 
@@ -11,13 +6,16 @@ namespace PboExplorer.Windows.PboExplorer;
 
 class PanesStyleSelector : StyleSelector
 {
+    public Style PaneStyle { get; set; }
     public Style DocumentStyle { get; set; }
 
-    public override System.Windows.Style SelectStyle(object item, System.Windows.DependencyObject container)
+    public override Style SelectStyle(object item, DependencyObject container)
     {
-        if (item is IDocument)
-            return DocumentStyle;
-
-        return base.SelectStyle(item, container);
+        return item switch
+        {
+            IPane => PaneStyle,
+            IDocument => DocumentStyle,
+            _ => base.SelectStyle(item, container)
+        };
     }
 }

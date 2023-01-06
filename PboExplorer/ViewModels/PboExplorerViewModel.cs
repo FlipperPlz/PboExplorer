@@ -2,6 +2,8 @@
 using CommunityToolkit.Mvvm.Messaging;
 using PboExplorer.Messages;
 using PboExplorer.Utils.Interfaces;
+using PboExplorer.Utils.Managers;
+using PboExplorer.ViewModels.Panes;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -17,11 +19,18 @@ public partial class PboExplorerViewModel : ObservableObject, IDisposable, IReci
     private IDocument? _activeDocument;
 
     public ObservableCollection<IDocument> Documents { get; } = new();
+    public ObservableCollection<IPane> Panes { get; } = new();
 
-    public PboExplorerViewModel()
+    public PboExplorerViewModel(EntryTreeManager treeManager) // CONSIDER: inject pane vms directly
     {
         Documents.CollectionChanged += OnDocumentsCollectionChanged;
         Documents.Add(new AboutEntryViewModel());
+
+        Panes.Add(new FileTreePaneViewModel(treeManager));
+        Panes.Add(new ConfigTreePaneViewModel());
+        Panes.Add(new PboMetadataPaneViewModel());
+        Panes.Add(new SearchResultsPaneViewModel());
+        Panes.Add(new EntryInformationPaneViewModel());
 
         WeakReferenceMessenger.Default.Register(this);
     }
